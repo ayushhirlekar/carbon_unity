@@ -1,20 +1,23 @@
 # Dependencies
 node_modules/
-.pnp
-.pnp.js
 
-# Environment variables
+# Environment variables (VERY IMPORTANT)
 .env
 .env.local
 .env.development
 .env.production
+backend/.env
+frontend/.env
 
 # Build outputs
 build/
 dist/
 out/
+frontend/build/
 
 # Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -29,53 +32,21 @@ Thumbs.db
 *.swp
 *.swo
 
-# Hardhat
+# Hardhat / Smart Contracts
 cache/
 artifacts/
 typechain/
 typechain-types/
-
-# Misc
-coverage/
-.cache/
-
-# Environment Variables
-.env
-.env.local
-.env.production
-backend/.env
-frontend/.env
-
-# Dependencies
-node_modules/
-package-lock.json
-yarn.lock
-
-# Build outputs
-dist/
-build/
-frontend/build/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-logs/
-*.log
-npm-debug.log*
+smart-contracts/artifacts/
+smart-contracts/cache/
+smart-contracts/node_modules/
 
 # Database
 *.sqlite
 *.db
 
-# Smart Contracts
-smart-contracts/artifacts/
-smart-contracts/cache/
-smart-contracts/node_modules/
+# Misc
+coverage/
+.cache/
+
+landing-page/carbonunity-frames

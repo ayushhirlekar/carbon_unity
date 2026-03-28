@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarbonUnity | Empower Farmers, Generate Carbon Credits</title>
+    <meta name="description"
+        content="CarbonUnity combines satellite imagery and AI to help farmers generate verified carbon credits.">
+    <style>
+        /* ===== Reset & Variables ===== */
+        :root {
+            --primary-green: #2d5016;
+            --secondary-green: #639922;
+            --gold: #c9a961;
+            --light-gray: #f5f5f5;
+            --border-gray: #e0e0e0;
+            --text-main: #333333;
+            --text-light: #666666;
+            --nav-height: 60px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-main);
+            background-color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ===== Navbar (Fixed, 60px, z-index 100) ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--nav-height);
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--border-gray);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-inner {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary-green);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: var(--secondary-green);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-green);
+        }
+
+        /* ===== Scroll Animation Wrapper ===== */
+        /*
+         * .scroll-wrapper is the tall div that creates the scrollable zone.
+         * Inside, .scroll-sticky pins the animation container in the viewport
+         * while the user scrolls through the wrapper height.
+         * 500vh = ~5 screen-heights of scroll = smooth 68-frame progression.
+         */
+        .scroll-wrapper {
+            position: relative;
+            height: 500vh;
+            margin-top: var(--nav-height);
+            /* push below fixed navbar */
+        }
+
+        .scroll-sticky {
+            position: sticky;
+            top: var(--nav-height);
+            width: 100%;
+            height: calc(100vh - var(--nav-height));
+            overflow: hidden;
+        }
+
+        /* The full-screen animation container */
+        #scroll-animation-area {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #scroll-animation-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ===== Floating Info Boxes ===== */
+        .info-box {
+            position: fixed;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            color: #ffffff;
+            line-height: 1.6;
+            z-index: 50;
+            opacity: 0;
+            display: none;
+            /* hidden until JS activates */
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .info-box h3 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .info-box .subtitle {
+            color: var(--gold);
+            font-weight: 500;
+            margin: 0 0 12px 0;
+            font-size: 14px;
+        }
+
+        .info-box .desc {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Box positions — fixed to viewport, aligned to animation area */
+        #box-1 {
+            left: 20px;
+            top: calc(var(--nav-height) + 50vh);
+            transform: translateY(-50%);
+        }
+
+        #box-2 {
+            right: 20px;
+            top: calc(var(--nav-height) + 50vh);
+            transform: translateY(-50%);
+        }
+
+        #box-3 {
+            left: 20px;
+            top: calc(var(--nav-height) + 65vh);
+            transform: translateY(-50%);
+        }
+
+        #box-4 {
+            right: 20px;
+            top: calc(var(--nav-height) + 65vh);
+            transform: translateY(-50%);
+        }
+
+        /* ===== Features Section ===== */
+        .features {
+            padding: 80px 40px;
+            background-color: var(--light-gray);
+        }
+
+        .features-heading {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--primary-green);
+            margin-bottom: 48px;
+            font-weight: 700;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: #ffffff;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            padding: 40px 28px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background-color: #f0fdf4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 28px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+            color: var(--primary-green);
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* ===== CTA Section ===== */
+        .cta {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            padding: 60px 40px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .cta h2 {
+            font-size: 2.4rem;
+            margin-bottom: 16px;
+        }
+
+        .cta p {
+            font-size: 1.15rem;
+            margin-bottom: 36px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .cta-btns {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn-cta-primary {
+            background-color: var(--secondary-green);
+            color: #fff;
+            border: 2px solid var(--secondary-green);
+        }
+
+        .btn-cta-primary:hover {
+            background-color: #fff;
+            color: var(--primary-green);
+            border-color: #fff;
+        }
+
+        .btn-cta-secondary {
+            background-color: #fff;
+            color: var(--primary-green);
+            border: 2px solid #fff;
+        }
+
+        .btn-cta-secondary:hover {
+            background-color: transparent;
+            color: #fff;
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            background-color: var(--primary-green);
+            color: #ffffff;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+        }
+
+        .copyright {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 1024px) {
+            .info-box {
+                width: 240px;
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-btns {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .info-box {
+                width: 180px;
+                padding: 12px;
+            }
+
+            #box-1,
+            #box-3 {
+                left: 8px;
+            }
+
+            #box-2,
+            #box-4 {
+                right: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Navbar ===== -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="#" class="logo">Carbon<span>Unity</span></a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How it Works</a>
+                <a href="#marketplace">Marketplace</a>
+                <a href="#login">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== No Hero Section — animation starts immediately ===== -->
+
+    <!-- ===== Full-Screen Scroll Animation ===== -->
+    <div class="scroll-wrapper" id="how-it-works">
+        <div class="scroll-sticky">
+            <div id="scroll-animation-area">
+                <img id="animationFrame" src="carbonunity-frames/frame_001.jpg" alt="CarbonUnity Animation">
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Floating Info Boxes (fixed to viewport) ===== -->
+    <div id="box-1" class="info-box">
+        <h3>CarbonUnity</h3>
+        <p class="subtitle">Empower Farmers to Generate Carbon Credits</p>
+        <p class="desc">Using AI + satellite data to verify carbon sequestration and unlock value for farmers.</p>
+    </div>
+
+    <div id="box-2" class="info-box">
+        <h3>Marketplace</h3>
+        <p class="subtitle">Buy Verified Carbon Credits</p>
+        <p class="desc">Access verified, transparent carbon credits from farmers globally. Trade with confidence.</p>
+    </div>
+
+    <div id="box-3" class="info-box">
+        <h3>AI MRV System</h3>
+        <p class="subtitle">Satellite + AI Analysis</p>
+        <p class="desc">Accurate biomass estimation, carbon calculations, and automated verification using machine
+            learning.</p>
+    </div>
+
+    <div id="box-4" class="info-box">
+        <h3>Global Marketplace</h3>
+        <p class="subtitle">Instant Credit Settlement</p>
+        <p class="desc">Blockchain-verified credits, transparent pricing, and instant settlement across the globe.</p>
+    </div>
+
+    <!-- ===== Features Section ===== -->
+    <section class="features" id="features">
+        <h2 class="features-heading">Why CarbonUnity</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🛰️</div>
+                <h3>AI-Powered Analytics</h3>
+                <p>Satellite imagery combined with machine learning for accurate biomass estimation</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✓</div>
+                <h3>Real-time Verification</h3>
+                <p>Blockchain-verified credits with transparent audit trails for full transparency</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <h3>Global Marketplace</h3>
+                <p>Buy and sell verified carbon credits instantly with users worldwide</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA Section ===== -->
+    <section class="cta" id="marketplace">
+        <h2>Ready to Make an Impact?</h2>
+        <p>Join farmers and companies transforming land into climate solutions</p>
+        <div class="cta-btns">
+            <a href="#" class="btn btn-cta-primary">Get Started Now</a>
+            <a href="#" class="btn btn-cta-secondary">Browse Credits</a>
+        </div>
+    </section>
+
+    <!-- ===== Footer ===== -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="#">About</a>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Contact</a>
+        </div>
+        <div class="copyright">&copy; 2026 CarbonUnity. All rights reserved.</div>
+    </footer>
+
+    <!-- ===== Scroll Animation & Info-Box Logic ===== -->
+    <script>
+        (function () {
+            'use strict';
+
+            // --- Cache DOM elements once ---
+            var animImg = document.getElementById('animationFrame');
+            var scrollWrapper = document.querySelector('.scroll-wrapper');
+            var box1 = document.getElementById('box-1');
+            var box2 = document.getElementById('box-2');
+            var box3 = document.getElementById('box-3');
+            var box4 = document.getElementById('box-4');
+
+            var TOTAL_FRAMES = 68;
+            var currentFrame = 0;
+            var lazyLoaded = false;
+
+            // --- Frame path helper ---
+            function framePath(i) {
+                return 'carbonunity-frames/frame_' + String(i).padStart(3, '0') + '.jpg';
+            }
+
+            // --- Preload frames 1-28 immediately ---
+            for (var i = 1; i <= 28; i++) {
+                (new Image()).src = framePath(i);
+            }
+
+            // --- Lazy-load frames 29-68 when needed ---
+            function lazyLoadRemaining() {
+                if (lazyLoaded) return;
+                lazyLoaded = true;
+                for (var i = 29; i <= TOTAL_FRAMES; i++) {
+                    (new Image()).src = framePath(i);
+                }
+            }
+
+            // --- Opacity calculator ---
+            // fadeInStart → fadeInEnd : ramp 0→1
+            // fadeInEnd   → fadeOutStart : hold at 1
+            // fadeOutStart→ fadeOutEnd : ramp 1→0
+            function calcOpacity(frame, fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd) {
+                if (frame < fadeInStart || frame > fadeOutEnd) return 0;
+                if (frame >= fadeInEnd && frame <= fadeOutStart) return 1;
+                if (frame < fadeInEnd) {
+                    return (frame - fadeInStart) / (fadeInEnd - fadeInStart);
+                }
+                if (frame > fadeOutStart) {
+                    return 1 - (frame - fadeOutStart) / (fadeOutEnd - fadeOutStart);
+                }
+                return 0;
+            }
+
+            // --- Update all 4 boxes ---
+            function updateBoxes(f) {
+                box1.style.opacity = calcOpacity(f, 4, 8, 26, 28);
+                box2.style.opacity = calcOpacity(f, 15, 19, 26, 28);
+                box3.style.opacity = calcOpacity(f, 25, 30, 68, 68);
+                box4.style.opacity = calcOpacity(f, 50, 55, 68, 68);
+            }
+
+            // --- Calculate animation progress within the scroll-wrapper ---
+            function getProgress() {
+                var wrapperTop = scrollWrapper.offsetTop;
+                var wrapperH = scrollWrapper.offsetHeight;
+                var viewH = window.innerHeight;
+                var scrollable = wrapperH - viewH;
+                if (scrollable <= 0) return 0;
+
+                var scrolled = window.scrollY - wrapperTop;
+                var p = scrolled / scrollable;
+                return p < 0 ? 0 : (p > 1 ? 1 : p);
+            }
+
+            // --- Main scroll handler ---
+            function onScroll() {
+                var progress = getProgress();
+
+                // Convert 0-1 to frame 1-68
+                var frameIndex = Math.round(progress * (TOTAL_FRAMES - 1)) + 1;
+                if (frameIndex < 1) frameIndex = 1;
+                if (frameIndex > TOTAL_FRAMES) frameIndex = TOTAL_FRAMES;
+
+                // Lazy-load underground frames when approaching
+                if (frameIndex >= 25 && !lazyLoaded) lazyLoadRemaining();
+
+                // Only update DOM when frame actually changes
+                if (frameIndex !== currentFrame) {
+                    currentFrame = frameIndex;
+                    animImg.src = framePath(frameIndex);
+                    updateBoxes(frameIndex);
+                }
+
+                // Show/hide boxes: only while inside the scroll-wrapper zone
+                var inZone = (progress > 0 && progress < 1);
+                var d = inZone ? 'block' : 'none';
+                box1.style.display = d;
+                box2.style.display = d;
+                box3.style.display = d;
+                box4.style.display = d;
+            }
+
+            // --- Throttle to 60fps ---
+            var ticking = false;
+            window.addEventListener('scroll', function () {
+                if (!ticking) {
+                    requestAnimationFrame(function () {
+                        onScroll();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }, { passive: true });
+
+            // --- Initial render ---
+            onScroll();
+        })();
+    </script>
+
+</body>
+
+</html>
