@@ -1,0 +1,15 @@
+
+> carbonunity-frontend@1.0.0 build
+> vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 61 modules transformed.
+[31mx[39m Build failed in 732ms
+[31merror during build:
+[31mCould not resolve "../../smart-contracts/CarbonCreditMarketplace.abi.json" from "src/services/contractService.js"[31m
+file: [36mD:/carbon_unity(anti)/frontend/src/services/contractService.js[31m
+    at getRollupError (file:///D:/carbon_unity(anti)/frontend/node_modules/rollup/dist/es/shared/parseAst.js:406:41)
+    at error (file:///D:/carbon_unity(anti)/frontend/node_modules/rollup/dist/es/shared/parseAst.js:402:42)
+    at ModuleLoader.handleInvalidResolvedId (file:///D:/carbon_unity(anti)/frontend/node_modules/rollup/dist/es/shared/node-entry.js:22106:24)
+    at file:///D:/carbon_unity(anti)/frontend/node_modules/rollup/dist/es/shared/node-entry.js:22066:26[39m

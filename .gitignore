@@ -3,9 +3,7 @@ node_modules/
 
 # Environment variables (VERY IMPORTANT)
 .env
-.env.local
-.env.development
-.env.production
+.env.*
 backend/.env
 frontend/.env
 
@@ -18,9 +16,6 @@ frontend/build/
 # Logs
 logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # OS files
 .DS_Store
@@ -29,10 +24,8 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# Hardhat / Smart Contracts
+# Smart Contracts
 cache/
 artifacts/
 typechain/
@@ -49,4 +42,13 @@ smart-contracts/node_modules/
 coverage/
 .cache/
 
-landing-page/carbonunity-frames
+# Ignore specific folder
+landing-page/carbonunity-frames/
+
+
+.agent/
+
+# Markdown files
+*.md
+!README.md
+!*/README.md
