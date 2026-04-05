@@ -3,328 +3,212 @@ import { useNavigate } from 'react-router-dom';
 import adminService from '../../services/adminService';
 import { useToast } from '../../components/common/Toast';
 
+const EMPTY = {
+  farmName: '', location: '', district: '', state: '', area: '',
+  cropType: '', farmerName: '', farmerContact: '', numberOfFarmers: '1',
+  soc: '', bulkDensity: '', depth: '',
+  title: '', subtitle: '', coverImageUrl: '', pricePerCredit: '',
+  vintageYear: new Date().getFullYear(), verificationStandard: 'gold standard',
+  practiceTags: '', listingStatus: 'active',
+};
+
+// ── Icons ────────────────────────────────────────────────────────────────────
+const BackIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+  </svg>
+);
+const FarmIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+  </svg>
+);
+const ScienceIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+  </svg>
+);
+const TagIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" /><path d="M6 6h.008v.008H6V6z" />
+  </svg>
+);
+
+const S = {
+  page: { background: '#EEF2EE', minHeight: '100vh', fontFamily: 'system-ui,-apple-system,sans-serif', padding: '28px' },
+  back: { fontSize: 13, color: '#4A6741', cursor: 'pointer', marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', fontFamily: 'inherit' },
+  header: { marginBottom: 24 },
+  title: { fontSize: 22, fontWeight: 700, color: '#1C2B1C' },
+  subtitle: { fontSize: 13, color: '#4A6741', marginTop: 3 },
+  card: { background: '#FAFCF8', borderRadius: 16, border: '1px solid #C8DDBE', padding: 24, marginBottom: 20 },
+  sectionTitle: { fontSize: 15, fontWeight: 600, color: '#1C2B1C', marginBottom: 16, paddingBottom: 10, borderBottom: '1px solid #D8E8D0', display: 'flex', alignItems: 'center', gap: 8 },
+  grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 14 },
+  group: { display: 'flex', flexDirection: 'column', gap: 5 },
+  groupFull: { display: 'flex', flexDirection: 'column', gap: 5, gridColumn: '1/-1' },
+  label: { fontSize: 11, fontWeight: 600, color: '#4A6741', textTransform: 'uppercase', letterSpacing: '.4px' },
+  input: { padding: '9px 12px', border: '1px solid #C8DDBE', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: '#1C2B1C', background: '#fff', outline: 'none' },
+  select: { padding: '9px 12px', border: '1px solid #C8DDBE', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: '#1C2B1C', background: '#fff', outline: 'none' },
+  textarea: { padding: '9px 12px', border: '1px solid #C8DDBE', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: '#1C2B1C', background: '#fff', outline: 'none', resize: 'vertical', minHeight: 70 },
+  hint: { fontSize: 11, color: '#4A6741', marginTop: 3 },
+  actions: { display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 },
+  btnCancel: { padding: '10px 22px', background: 'transparent', color: '#4A6741', border: '1px solid #C8DDBE', borderRadius: 10, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' },
+  btnSubmit: { padding: '10px 28px', background: '#2D5A27', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'background .18s' },
+  btnDisabled: { padding: '10px 28px', background: '#9ab89a', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'not-allowed', fontFamily: 'inherit' },
+  error: { background: '#fce8e8', border: '1px solid #e57373', color: '#c0392b', padding: '10px 14px', borderRadius: 8, fontSize: 13, marginTop: 12 },
+  calcBox: { background: '#EAF3DE', border: '1px solid #B8DDAC', borderRadius: 12, padding: '14px 16px', marginTop: 12 },
+  calcTitle: { fontSize: 12, fontWeight: 600, color: '#1C4A18', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.4px' },
+  calcGrid: { display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 },
+  calcItem: { textAlign: 'center' },
+  calcVal: { fontSize: 18, fontWeight: 700, color: '#1C4A18', display: 'block' },
+  calcLabel: { fontSize: 10, color: '#4A6741', textTransform: 'uppercase', letterSpacing: '.4px' },
+};
+
 export default function CreateProjectPage() {
   const navigate = useNavigate();
   const toast = useToast();
+  const [form, setForm] = useState(EMPTY);
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1); // 1: Farm, 2: Carbon, 3: Listing
+  const [error, setError] = useState('');
 
-  const [form, setForm] = useState({
-    // Farm
-    farmName: '', location: '', district: '', state: '',
-    area: '', cropType: '', farmerName: '', farmerContact: '', numberOfFarmers: '1',
-    // Carbon
-    soc: '', bulkDensity: '', depth: '',
-    // Listing
-    title: '', subtitle: '', coverImageUrl: '', pricePerCredit: '',
-    vintageYear: new Date().getFullYear().toString(),
-    verificationStandard: '', practiceTags: [],
-    listingStatus: 'draft'
-  });
+  const set = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
-  const [tagInput, setTagInput] = useState('');
-
-  const update = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
-
-  const addTag = () => {
-    if (tagInput.trim() && !form.practiceTags.includes(tagInput.trim())) {
-      update('practiceTags', [...form.practiceTags, tagInput.trim()]);
-      setTagInput('');
-    }
+  const estimateCarbon = () => {
+    const soc = parseFloat(form.soc);
+    const bd  = parseFloat(form.bulkDensity);
+    const depth = parseFloat(form.depth);
+    const area  = parseFloat(form.area);
+    if (!soc || !bd || !depth || !area) return null;
+    const carbonStock = (soc / 100) * bd * depth * area * 10;
+    const co2eq   = carbonStock * 3.67;
+    const credits = co2eq * 0.85;
+    return { carbonStock: Math.round(carbonStock), co2eq: Math.round(co2eq), credits: Math.round(credits) };
   };
 
-  const removeTag = (tag) => {
-    update('practiceTags', form.practiceTags.filter(t => t !== tag));
-  };
+  const est = estimateCarbon();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
-      const res = await adminService.createProject({
+      const payload = {
         ...form,
-        area: parseFloat(form.area),
-        soc: parseFloat(form.soc),
-        bulkDensity: parseFloat(form.bulkDensity),
-        depth: parseFloat(form.depth),
-        pricePerCredit: parseFloat(form.pricePerCredit),
-        vintageYear: parseInt(form.vintageYear),
-        numberOfFarmers: parseInt(form.numberOfFarmers)
-      });
-
-      toast.success(`Project created! ${res.data.calculation.creditsGenerated.toLocaleString()} credits generated.`);
+        practiceTags: form.practiceTags ? form.practiceTags.split(',').map(t => t.trim()).filter(Boolean) : [],
+        numberOfFarmers: parseInt(form.numberOfFarmers) || 1,
+      };
+      await adminService.createProject(payload);
+      toast.success('Project created successfully!');
       navigate('/admin/projects');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create project');
+      setError(err.response?.data?.message || err.message || 'Failed to create project');
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClass = "w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#639922] transition-colors placeholder-gray-600";
-  const labelClass = "block text-sm font-medium text-gray-300 mb-1.5";
+  const Field = ({ label, name, type = 'text', placeholder, hint, full }) => (
+    <div style={full ? S.groupFull : S.group}>
+      <label style={S.label}>{label}</label>
+      <input style={S.input} name={name} type={type} value={form[name]} onChange={set} placeholder={placeholder} />
+      {hint && <span style={S.hint}>{hint}</span>}
+    </div>
+  );
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Create Carbon Offset Project</h1>
-        <p className="text-gray-500 text-sm mt-1">
-          Fill in farm details, soil measurements, and listing information
-        </p>
-      </div>
+    <div style={S.page}>
+      <button style={S.back} onClick={() => navigate('/admin/projects')}>
+        <BackIcon /> Back to Projects
+      </button>
 
-      {/* Step Indicator */}
-      <div className="flex items-center gap-2 mb-8">
-        {[
-          { n: 1, label: 'Farm Details' },
-          { n: 2, label: 'Carbon Data' },
-          { n: 3, label: 'Listing Info' }
-        ].map(s => (
-          <button
-            key={s.n}
-            onClick={() => setStep(s.n)}
-            className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all ${
-              step === s.n
-                ? 'bg-[#639922] text-white'
-                : step > s.n
-                  ? 'bg-[#639922]/20 text-[#639922] border border-[#639922]/30'
-                  : 'bg-white/5 text-gray-500 border border-white/10'
-            }`}
-          >
-            {s.n}. {s.label}
-          </button>
-        ))}
+      <div style={S.header}>
+        <div style={S.title}>Create New Project</div>
+        <div style={S.subtitle}>Farm data + carbon calculation + marketplace listing in one step</div>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="bg-[#1a1a2e] border border-white/5 rounded-2xl p-6 lg:p-8">
 
-          {/* Step 1: Farm */}
-          {step === 1 && (
-            <div className="space-y-5">
-              <h2 className="text-lg font-semibold text-white mb-4">🌾 Farm Information</h2>
+        {/* Farm Details */}
+        <div style={S.card}>
+          <div style={S.sectionTitle}><FarmIcon /> Farm Details</div>
+          <div style={S.grid2}>
+            <Field label="Farm Name *"          name="farmName"        placeholder="e.g. Ayush's Farm"          full />
+            <Field label="Location *"           name="location"        placeholder="e.g. Konkan Coast" />
+            <Field label="District"             name="district"        placeholder="e.g. Ratnagiri" />
+            <Field label="State"                name="state"           placeholder="e.g. Maharashtra" />
+            <Field label="Area (hectares) *"    name="area"            type="number" placeholder="e.g. 400" />
+            <Field label="Crop Type"            name="cropType"        placeholder="e.g. Wheat, Rice" />
+            <Field label="Farmer Name"          name="farmerName"      placeholder="e.g. Ramesh Patil" />
+            <Field label="Farmer Contact"       name="farmerContact"   placeholder="Phone or email" />
+            <Field label="Number of Farmers"    name="numberOfFarmers" type="number" placeholder="1" />
+          </div>
+        </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label className={labelClass}>Farm Name *</label>
-                  <input type="text" value={form.farmName} onChange={e => update('farmName', e.target.value)} className={inputClass} placeholder="Green Valley Farm" required />
-                </div>
-                <div>
-                  <label className={labelClass}>Location *</label>
-                  <input type="text" value={form.location} onChange={e => update('location', e.target.value)} className={inputClass} placeholder="Nashik, Maharashtra" required />
-                </div>
-                <div>
-                  <label className={labelClass}>District</label>
-                  <input type="text" value={form.district} onChange={e => update('district', e.target.value)} className={inputClass} placeholder="Nashik" />
-                </div>
-                <div>
-                  <label className={labelClass}>State</label>
-                  <input type="text" value={form.state} onChange={e => update('state', e.target.value)} className={inputClass} placeholder="Maharashtra" />
-                </div>
-                <div>
-                  <label className={labelClass}>Area (hectares) *</label>
-                  <input type="number" step="0.01" min="0.01" value={form.area} onChange={e => update('area', e.target.value)} className={inputClass} placeholder="850" required />
-                </div>
-                <div>
-                  <label className={labelClass}>Crop Type</label>
-                  <input type="text" value={form.cropType} onChange={e => update('cropType', e.target.value)} className={inputClass} placeholder="Rice, Wheat" />
-                </div>
-              </div>
-
-              <h3 className="text-md font-semibold text-white mt-6 pt-4 border-t border-white/5">
-                👤 Farmer Information (Offline)
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div>
-                  <label className={labelClass}>Farmer Name</label>
-                  <input type="text" value={form.farmerName} onChange={e => update('farmerName', e.target.value)} className={inputClass} placeholder="Rajesh Kumar" />
-                </div>
-                <div>
-                  <label className={labelClass}>Contact</label>
-                  <input type="text" value={form.farmerContact} onChange={e => update('farmerContact', e.target.value)} className={inputClass} placeholder="+91 98765 43210" />
-                </div>
-                <div>
-                  <label className={labelClass}>Number of Farmers</label>
-                  <input type="number" min="1" value={form.numberOfFarmers} onChange={e => update('numberOfFarmers', e.target.value)} className={inputClass} />
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-4">
-                <button type="button" onClick={() => setStep(2)} className="bg-[#639922] hover:bg-[#2d5016] text-white font-medium px-6 py-2.5 rounded-xl transition-all">
-                  Next: Carbon Data →
-                </button>
+        {/* Soil & Carbon Data */}
+        <div style={S.card}>
+          <div style={S.sectionTitle}><ScienceIcon /> Soil & Carbon Data</div>
+          <div style={S.grid2}>
+            <Field label="SOC % *"              name="soc"         type="number" placeholder="e.g. 1.5"  hint="Soil Organic Carbon percentage" />
+            <Field label="Bulk Density (g/cm³) *" name="bulkDensity" type="number" placeholder="e.g. 1.2" hint="Typical: 1.0–1.6 g/cm³" />
+            <Field label="Depth (cm) *"         name="depth"       type="number" placeholder="e.g. 30"   hint="Sampling depth in cm" />
+          </div>
+          {est && (
+            <div style={S.calcBox}>
+              <div style={S.calcTitle}>Estimated Carbon Calculation</div>
+              <div style={S.calcGrid}>
+                <div style={S.calcItem}><span style={S.calcVal}>{est.carbonStock.toLocaleString()}</span><span style={S.calcLabel}>Carbon Stock (t)</span></div>
+                <div style={S.calcItem}><span style={S.calcVal}>{est.co2eq.toLocaleString()}</span><span style={S.calcLabel}>CO₂ Equivalent (t)</span></div>
+                <div style={S.calcItem}><span style={S.calcVal}>{est.credits.toLocaleString()}</span><span style={S.calcLabel}>Est. Credits</span></div>
               </div>
             </div>
           )}
+        </div>
 
-          {/* Step 2: Carbon */}
-          {step === 2 && (
-            <div className="space-y-5">
-              <h2 className="text-lg font-semibold text-white mb-4">🔬 Soil Measurements</h2>
-
-              <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-4 py-3 rounded-xl text-sm">
-                <strong>Formula:</strong> Carbon Stock = SOC% × Bulk Density × Depth(cm) × Area(ha) × 100 → ×3.67 = CO₂e
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div>
-                  <label className={labelClass}>SOC - Soil Organic Carbon (%) *</label>
-                  <input type="number" step="0.0001" min="0.01" max="20" value={form.soc} onChange={e => update('soc', e.target.value)} className={inputClass} placeholder="2.8" required />
-                  <p className="text-xs text-gray-600 mt-1">Typical: 0.5% - 10%</p>
-                </div>
-                <div>
-                  <label className={labelClass}>Bulk Density (g/cm³) *</label>
-                  <input type="number" step="0.0001" min="0.5" max="2.5" value={form.bulkDensity} onChange={e => update('bulkDensity', e.target.value)} className={inputClass} placeholder="1.35" required />
-                  <p className="text-xs text-gray-600 mt-1">Typical: 1.0 - 1.8 g/cm³</p>
-                </div>
-                <div>
-                  <label className={labelClass}>Depth (cm) *</label>
-                  <input type="number" step="0.1" min="1" max="300" value={form.depth} onChange={e => update('depth', e.target.value)} className={inputClass} placeholder="50" required />
-                  <p className="text-xs text-gray-600 mt-1">Typical: 10 - 100 cm</p>
-                </div>
-              </div>
-
-              {/* Live Preview */}
-              {form.soc && form.bulkDensity && form.depth && form.area && (
-                <div className="bg-[#639922]/10 border border-[#639922]/30 rounded-xl p-5 mt-4">
-                  <h3 className="text-[#639922] font-semibold mb-3">📊 Estimated Credits</h3>
-                  {(() => {
-                    const cs = (parseFloat(form.soc)/100) * parseFloat(form.bulkDensity) * parseFloat(form.depth) * parseFloat(form.area) * 100;
-                    const co2 = cs * 3.67;
-                    return (
-                      <div className="grid grid-cols-3 gap-4 text-center">
-                        <div>
-                          <p className="text-2xl font-bold text-white">{cs.toFixed(2)}</p>
-                          <p className="text-xs text-gray-400">Carbon Stock (tons)</p>
-                        </div>
-                        <div>
-                          <p className="text-2xl font-bold text-white">{co2.toFixed(2)}</p>
-                          <p className="text-xs text-gray-400">CO₂ Equivalent (tons)</p>
-                        </div>
-                        <div>
-                          <p className="text-2xl font-bold text-[#639922]">{Math.round(co2 * 100) / 100}</p>
-                          <p className="text-xs text-gray-400">Credits Generated</p>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
-
-              <div className="flex justify-between pt-4">
-                <button type="button" onClick={() => setStep(1)} className="text-gray-400 hover:text-white transition-colors">
-                  ← Back
-                </button>
-                <button type="button" onClick={() => setStep(3)} className="bg-[#639922] hover:bg-[#2d5016] text-white font-medium px-6 py-2.5 rounded-xl transition-all">
-                  Next: Listing Info →
-                </button>
-              </div>
+        {/* Listing Details */}
+        <div style={S.card}>
+          <div style={S.sectionTitle}><TagIcon /> Marketplace Listing</div>
+          <div style={S.grid2}>
+            <div style={S.groupFull}>
+              <label style={S.label}>Listing Title *</label>
+              <input style={S.input} name="title" value={form.title} onChange={set} placeholder="e.g. Konkan Coastal Agroforestry Initiative" />
             </div>
-          )}
-
-          {/* Step 3: Listing */}
-          {step === 3 && (
-            <div className="space-y-5">
-              <h2 className="text-lg font-semibold text-white mb-4">🏷️ Marketplace Listing</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="md:col-span-2">
-                  <label className={labelClass}>Listing Title *</label>
-                  <input type="text" value={form.title} onChange={e => update('title', e.target.value)} className={inputClass} placeholder="Maharashtra Regenerative Agriculture Project" required />
-                </div>
-                <div className="md:col-span-2">
-                  <label className={labelClass}>Subtitle</label>
-                  <input type="text" value={form.subtitle} onChange={e => update('subtitle', e.target.value)} className={inputClass} placeholder="Carbon sequestration through no-till farming practices" />
-                </div>
-                <div>
-                  <label className={labelClass}>Price per Credit (ETH) *</label>
-                  <input type="number" step="0.000001" min="0.000001" value={form.pricePerCredit} onChange={e => update('pricePerCredit', e.target.value)} className={inputClass} placeholder="0.001" required />
-                </div>
-                <div>
-                  <label className={labelClass}>Vintage Year</label>
-                  <input type="number" min="2000" max="2100" value={form.vintageYear} onChange={e => update('vintageYear', e.target.value)} className={inputClass} />
-                </div>
-                <div>
-                  <label className={labelClass}>Verification Standard</label>
-                  <input type="text" value={form.verificationStandard} onChange={e => update('verificationStandard', e.target.value)} className={inputClass} placeholder="Verra VCS, Gold Standard" />
-                </div>
-                <div>
-                  <label className={labelClass}>Cover Image URL</label>
-                  <input type="url" value={form.coverImageUrl} onChange={e => update('coverImageUrl', e.target.value)} className={inputClass} placeholder="https://..." />
-                </div>
-              </div>
-
-              {/* Tags */}
-              <div>
-                <label className={labelClass}>Practice Tags</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={tagInput}
-                    onChange={e => setTagInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                    className={inputClass}
-                    placeholder="e.g., No-Till, Cover Cropping"
-                  />
-                  <button type="button" onClick={addTag} className="bg-white/10 hover:bg-white/20 text-white px-4 rounded-xl transition-all">
-                    Add
-                  </button>
-                </div>
-                {form.practiceTags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {form.practiceTags.map(tag => (
-                      <span key={tag} className="bg-[#639922]/20 text-[#639922] text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                        {tag}
-                        <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-400">×</button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Status */}
-              <div>
-                <label className={labelClass}>Initial Status</label>
-                <div className="flex gap-3">
-                  {['draft', 'active'].map(s => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => update('listingStatus', s)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                        form.listingStatus === s
-                          ? 'bg-[#639922] text-white'
-                          : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
-                      }`}
-                    >
-                      {s === 'draft' ? '📝 Draft' : '🟢 Active (publish now)'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex justify-between pt-4">
-                <button type="button" onClick={() => setStep(2)} className="text-gray-400 hover:text-white transition-colors">
-                  ← Back
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-[#639922] hover:bg-[#2d5016] disabled:opacity-50 text-white font-semibold px-8 py-3 rounded-xl transition-all flex items-center gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                      Creating...
-                    </>
-                  ) : (
-                    '🚀 Create Project'
-                  )}
-                </button>
-              </div>
+            <div style={S.groupFull}>
+              <label style={S.label}>Subtitle</label>
+              <textarea style={S.textarea} name="subtitle" value={form.subtitle} onChange={set} placeholder="One line describing project impact" />
             </div>
-          )}
+            <Field label="Price per Credit (ETH) *" name="pricePerCredit" type="number" placeholder="e.g. 0.00001" />
+            <Field label="Vintage Year"              name="vintageYear"    type="number" placeholder={String(new Date().getFullYear())} />
+            <div style={S.group}>
+              <label style={S.label}>Verification Standard</label>
+              <select style={S.select} name="verificationStandard" value={form.verificationStandard} onChange={set}>
+                <option value="gold standard">Gold Standard</option>
+                <option value="vcs">VCS Verified</option>
+              </select>
+            </div>
+            <div style={S.group}>
+              <label style={S.label}>Listing Status</label>
+              <select style={S.select} name="listingStatus" value={form.listingStatus} onChange={set}>
+                <option value="active">Active (publish immediately)</option>
+                <option value="draft">Draft (save for later)</option>
+              </select>
+            </div>
+            <div style={S.groupFull}>
+              <label style={S.label}>Practice Tags</label>
+              <input style={S.input} name="practiceTags" value={form.practiceTags} onChange={set} placeholder="Agroforestry, Organic, No-Till (comma separated)" />
+            </div>
+            <div style={S.groupFull}>
+              <label style={S.label}>Cover Image URL</label>
+              <input style={S.input} name="coverImageUrl" value={form.coverImageUrl} onChange={set} placeholder="https://images.unsplash.com/..." />
+            </div>
+          </div>
+        </div>
+
+        {error && <div style={S.error}>{error}</div>}
+
+        <div style={S.actions}>
+          <button type="button" style={S.btnCancel} onClick={() => navigate('/admin/projects')}>Cancel</button>
+          <button type="submit" style={loading ? S.btnDisabled : S.btnSubmit} disabled={loading}>
+            {loading ? 'Creating...' : 'Create Project'}
+          </button>
         </div>
       </form>
     </div>

@@ -1,6 +1,31 @@
 import { useState, useEffect } from 'react';
 import marketplaceService from '../../services/marketplaceService';
 
+const S = {
+  page: { background: '#EEF2EE', minHeight: '100vh', fontFamily: 'system-ui,-apple-system,sans-serif', padding: '28px' },
+  header: { marginBottom: 24 },
+  title: { fontSize: 22, fontWeight: 700, color: '#1C2B1C' },
+  subtitle: { fontSize: 13, color: '#4A6741', marginTop: 3 },
+  card: { background: '#FAFCF8', borderRadius: 16, border: '1px solid #C8DDBE', padding: '20px 24px', marginBottom: 14 },
+  cardHeader: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 8 },
+  cardTitle: { fontSize: 15, fontWeight: 600, color: '#1C2B1C', marginBottom: 3 },
+  cardLocation: { fontSize: 12, color: '#4A6741' },
+  statusConfirmed: { fontSize: 11, padding: '3px 10px', borderRadius: 20, background: '#D6EDCC', color: '#1C4A18', fontWeight: 600 },
+  statusPending: { fontSize: 11, padding: '3px 10px', borderRadius: 20, background: '#fdf3dc', color: '#7a5c10', fontWeight: 600 },
+  statusFailed: { fontSize: 11, padding: '3px 10px', borderRadius: 20, background: '#fce8e8', color: '#c0392b', fontWeight: 600 },
+  metaGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(100px,1fr))', gap: 12, paddingTop: 14, borderTop: '1px solid #D8E8D0' },
+  metaItem: {},
+  metaLabel: { fontSize: 10, color: '#4A6741', textTransform: 'uppercase', letterSpacing: '.4px', display: 'block', marginBottom: 3 },
+  metaVal: { fontSize: 14, fontWeight: 600, color: '#1C2B1C' },
+  metaValGold: { fontSize: 14, fontWeight: 600, color: '#8a6310' },
+  ethLink: { fontSize: 11, color: '#185FA5', textDecoration: 'none', marginTop: 10, display: 'inline-block' },
+  empty: { background: '#FAFCF8', borderRadius: 16, border: '1px solid #C8DDBE', padding: '60px 20px', textAlign: 'center' },
+  emptyIcon: { fontSize: 48, marginBottom: 12 },
+  emptyTitle: { fontSize: 16, fontWeight: 600, color: '#1C2B1C', marginBottom: 6 },
+  emptyDesc: { fontSize: 13, color: '#4A6741' },
+  spinner: { width: 36, height: 36, border: '3px solid #D8E8D0', borderTopColor: '#2D5A27', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '60px auto' },
+};
+
 export default function PurchaseHistoryPage() {
   const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,83 +43,77 @@ export default function PurchaseHistoryPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="animate-spin w-8 h-8 border-2 border-[#639922] border-t-transparent rounded-full" />
-      </div>
-    );
-  }
+  const statusBadge = (status) => {
+    if (status === 'confirmed') return <span style={S.statusConfirmed}>✓ Confirmed</span>;
+    if (status === 'pending') return <span style={S.statusPending}>⏳ Pending</span>;
+    return <span style={S.statusFailed}>✕ Failed</span>;
+  };
+
+  if (loading) return (
+    <div style={S.page}><div style={S.spinner} /><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>
+  );
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Purchase History</h1>
-        <p className="text-gray-500 text-sm mt-1">{purchases.length} transaction(s)</p>
+    <div style={S.page}>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+
+      <div style={S.header}>
+        <div style={S.title}>Purchase History</div>
+        <div style={S.subtitle}>{purchases.length} transaction(s)</div>
       </div>
 
       {purchases.length === 0 ? (
-        <div className="text-center py-20 bg-[#1a1a2e] border border-white/5 rounded-2xl">
-          <span className="text-5xl mb-4 block">📋</span>
-          <h3 className="text-xl text-white mb-2">No purchases yet</h3>
-          <p className="text-gray-500">Visit the marketplace to purchase carbon credits</p>
+        <div style={S.empty}>
+          <div style={S.emptyIcon}>📋</div>
+          <div style={S.emptyTitle}>No purchases yet</div>
+          <div style={S.emptyDesc}>Visit the marketplace to purchase carbon credits</div>
         </div>
       ) : (
-        <div className="space-y-4">
-          {purchases.map(tx => (
-            <div key={tx.transaction_id} className="bg-[#1a1a2e] border border-white/5 rounded-2xl p-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-white font-medium mb-1">
-                    {tx.marketplace_listings?.title || `Listing #${tx.listing_id?.slice(0, 8)}`}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {tx.marketplace_listings?.location || ''}
-                  </p>
+        purchases.map(tx => (
+          <div key={tx.transaction_id} style={S.card}>
+            <div style={S.cardHeader}>
+              <div>
+                <div style={S.cardTitle}>
+                  {tx.marketplace_listings?.title || `Listing #${tx.listing_id?.slice(0, 8)}`}
                 </div>
-                <span className={`text-xs px-2.5 py-1 rounded-full ${
-                  tx.status === 'confirmed' ? 'bg-emerald-500/20 text-emerald-400' :
-                  tx.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
-                  'bg-red-500/20 text-red-400'
-                }`}>
-                  {tx.status}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 pt-4 border-t border-white/5">
-                <div>
-                  <p className="text-xs text-gray-500">Credits</p>
-                  <p className="text-white font-medium">{parseFloat(tx.credits_purchased).toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Price Paid</p>
-                  <p className="text-[#c9a961] font-medium">{parseFloat(tx.price_paid).toFixed(6)} ETH</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Block</p>
-                  <p className="text-white font-medium">{tx.block_number || '—'}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Date</p>
-                  <p className="text-white font-medium">
-                    {new Date(tx.created_at).toLocaleDateString()}
-                  </p>
+                <div style={S.cardLocation}>
+                  📍 {tx.marketplace_listings?.location || tx.marketplace_listings?.farms?.location || '—'}
                 </div>
               </div>
-
-              {tx.blockchain_tx_hash && (
-                <a
-                  href={`https://sepolia.etherscan.io/tx/${tx.blockchain_tx_hash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-400 hover:underline mt-3 inline-block"
-                >
-                  View on Etherscan →
-                </a>
-              )}
+              {statusBadge(tx.status)}
             </div>
-          ))}
-        </div>
+
+            <div style={S.metaGrid}>
+              <div style={S.metaItem}>
+                <span style={S.metaLabel}>Credits</span>
+                <span style={S.metaVal}>{parseFloat(tx.credits_purchased).toLocaleString()}</span>
+              </div>
+              <div style={S.metaItem}>
+                <span style={S.metaLabel}>Price Paid</span>
+                <span style={S.metaValGold}>{parseFloat(tx.price_paid).toFixed(6)} ETH</span>
+              </div>
+              <div style={S.metaItem}>
+                <span style={S.metaLabel}>Block</span>
+                <span style={S.metaVal}>{tx.block_number || '—'}</span>
+              </div>
+              <div style={S.metaItem}>
+                <span style={S.metaLabel}>Date</span>
+                <span style={S.metaVal}>{new Date(tx.created_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+
+            {tx.blockchain_tx_hash && (
+              <a
+                href={`https://sepolia.etherscan.io/tx/${tx.blockchain_tx_hash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={S.ethLink}
+              >
+                View on Etherscan →
+              </a>
+            )}
+          </div>
+        ))
       )}
     </div>
   );
