@@ -185,7 +185,9 @@ contract CarbonCreditMarketplace {
      * @param listingId ID of the listing to cancel
      */
     function cancelListing(uint256 listingId) external onlyAdmin {
-        require(listingId > 0 && listingId < nextListingId, "Invalid listing ID");
+        require(listingId > 0, "Listing ID must be greater than 0");
+        require(listingId < nextListingId, "Listing does not exist");
+        
         Listing storage listing = listings[listingId];
         require(listing.active, "Listing is not active");
 
@@ -218,7 +220,9 @@ contract CarbonCreditMarketplace {
         uint256 listingId,
         uint256 credits
     ) external payable noReentrant {
-        require(listingId > 0 && listingId < nextListingId, "Invalid listing ID");
+        require(listingId > 0, "Listing ID must be greater than 0");
+        require(listingId < nextListingId, "Listing does not exist");
+        
         Listing storage listing = listings[listingId];
 
         require(listing.active, "Listing is not active");
