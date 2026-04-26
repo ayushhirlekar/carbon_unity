@@ -30,7 +30,8 @@ const getProvider = () => {
  * @param {string} txHash - Transaction hash
  * @param {object} expected - Expected parameters
  * @param {string} expected.buyerWallet - Expected sender address
- * @param {string} [expected.contractAddress] - Expected recipient contract
+ * @param {string} [expected.recipientAddress] - Expected recipient (admin wallet for direct transfers)
+ * @param {string} [expected.contractAddress] - Expected recipient contract (legacy, use recipientAddress)
  * @returns {object} { confirmed, blockNumber, from, to, value }
  */
 const verifyTransaction = async (txHash, expected = {}) => {
@@ -64,12 +65,13 @@ const verifyTransaction = async (txHash, expected = {}) => {
     }
   }
 
-  // 5. Verify recipient is the contract address (if configured)
-  const targetContract = expected.contractAddress || CONTRACT_ADDRESS;
-  if (targetContract) {
-    if (tx.to && tx.to.toLowerCase() !== targetContract.toLowerCase()) {
+  // 5. Verify recipient address
+  // Priority: explicit recipientAddress > contractAddress > CONTRACT_ADDRESS env var
+  const expectedRecipient = expected.recipientAddress || expected.contractAddress || CONTRACT_ADDRESS;
+  if (expectedRecipient) {
+    if (tx.to && tx.to.toLowerCase() !== expectedRecipient.toLowerCase()) {
       throw new Error(
-        `Contract address mismatch. Expected: ${targetContract}, Got: ${tx.to}`
+        `Recipient address mismatch. Expected: ${expectedRecipient}, Got: ${tx.to}`
       );
     }
   }

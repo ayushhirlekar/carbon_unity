@@ -166,7 +166,8 @@ const purchaseCredits = async (req, res) => {
     let txVerification;
     try {
       txVerification = await verifyTransaction(blockchainTxHash, {
-        buyerWallet: walletAddress
+        buyerWallet: walletAddress,
+        recipientAddress: listing.created_by
       });
     } catch (verifyError) {
       console.error('Blockchain verification failed:', verifyError);
