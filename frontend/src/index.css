@@ -3,77 +3,109 @@
 @tailwind utilities;
 
 /* ============================================
-   CarbonUnity v2 — Global Styles
+   CarbonUnity — Institutional Climate-Tech Theme
    ============================================ */
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f0f1a;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2d5016;
-  border-radius: 3px;
+  background: #cbd5e1;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #639922;
+  background: #94a3b8;
 }
 
 /* Selection */
 ::selection {
-  background: rgba(99, 153, 34, 0.3);
-  color: #fff;
+  background: rgba(16, 185, 129, 0.2);
+  color: #064e3b;
 }
 
 /* Body defaults */
 body {
-  background-color: #0f0f1a;
-  color: #e5e5e5;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Toast slide-in animation */
-@keyframes slide-in {
-  from {
-    opacity: 0;
-    transform: translateX(100px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* Glassmorphism utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-.animate-slide-in {
-  animation: slide-in 0.3s ease-out;
+.glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
 }
 
-/* Smooth page transitions */
-.page-enter {
-  opacity: 0;
-  transform: translateY(10px);
-}
-.page-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: all 0.3s ease-out;
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
 }
 
-/* Gradient text utility */
-.gradient-text {
-  background: linear-gradient(135deg, #639922, #c9a961);
+/* Gradient utilities */
+.gradient-text-emerald {
+  background: linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Card hover glow */
-.card-glow:hover {
-  box-shadow: 0 0 30px rgba(99, 153, 34, 0.1);
+.gradient-text-gold {
+  background: linear-gradient(135deg, #a16207 0%, #eab308 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated Shimmer for Skeleton Loaders */
+.shimmer-bg {
+  position: relative;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+.shimmer-bg::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.5) 20%,
+    rgba(255, 255, 255, 0.8) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 1.8s infinite;
+  content: '';
+}
+
+/* Modern Card Glow */
+.card-glow-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-glow-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -6px rgba(6, 78, 59, 0.08), 0 0 0 1px rgba(16, 185, 129, 0.25);
 }
 
 /* Line clamp */

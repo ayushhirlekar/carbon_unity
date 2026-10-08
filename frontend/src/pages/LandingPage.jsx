@@ -2,39 +2,27 @@ import { useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/layout/Footer';
+import Button from '../components/common/Button';
 
 // ── Inline SVG Icons ──────────────────────────────────────────────────────────
 const IconShield = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     <polyline points="9 12 11 14 15 10" />
   </svg>
 );
 
 const IconLeaf = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" />
     <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
   </svg>
 );
 
 const IconChain = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-  </svg>
-);
-
-const IconArrow = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="5" y1="12" x2="19" y2="12" />
-    <polyline points="12 5 19 12 12 19" />
-  </svg>
-);
-
-const IconEthereum = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="#3dbc6a">
-    <path d="M12 1.75l-6.25 10.5L12 16l6.25-3.75L12 1.75zM5.75 13.5L12 22.25l6.25-8.75L12 17.25 5.75 13.5z" />
   </svg>
 );
 
@@ -46,9 +34,16 @@ const IconGlobe = () => (
   </svg>
 );
 
+const IconArrow = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
 // ── Constants ─────────────────────────────────────────────────────────────────
 const TOTAL_FRAMES = 68;
-const NAV_HEIGHT = 60;
+const NAV_HEIGHT = 64;
 
 function framePath(i) {
   return `/carbonunity-frames/frame_${String(i).padStart(3, '0')}.jpg`;
@@ -62,40 +57,31 @@ function calcOpacity(frame, fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd) {
   return 0;
 }
 
-// ── Info Box Component ────────────────────────────────────────────────────────
+// ── Modern Floating HUD Info Box Component ────────────────────────────────────
 const InfoBox = ({ id, title, subtitle, desc, style, boxRef }) => (
   <div
     id={id}
     ref={boxRef}
+    className="fixed z-30 w-72 sm:w-80 p-5 rounded-2xl bg-surface-950/85 backdrop-blur-xl border border-emerald-500/30 text-white shadow-2xl transition-all duration-500 pointer-events-none"
     style={{
-      position: 'fixed',
-      width: '300px',
-      background: 'rgba(0,0,0,0.75)',
-      border: '1px solid rgba(255,255,255,0.2)',
-      borderRadius: '12px',
-      padding: '20px',
-      color: '#ffffff',
-      lineHeight: 1.6,
-      zIndex: 50,
       opacity: 0,
       display: 'none',
-      pointerEvents: 'none',
-      transition: 'opacity 0.5s ease-in-out',
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
       ...style,
     }}
   >
-    <h3 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 700 }}>{title}</h3>
-    <p style={{ color: '#c9a961', fontWeight: 500, margin: '0 0 12px', fontSize: '14px' }}>{subtitle}</p>
-    <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.5, color: 'rgba(255,255,255,0.9)' }}>{desc}</p>
+    <div className="flex items-center gap-2 mb-1.5">
+      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+      <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-400 font-semibold">{subtitle}</span>
+    </div>
+    <h3 className="text-lg font-bold tracking-tight text-white mb-2">{title}</h3>
+    <p className="text-xs text-surface-300 leading-relaxed m-0">{desc}</p>
   </div>
 );
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function LandingPage() {
   const { isAuthenticated, user } = useAuth();
-  const dashboardPath = user?.role === 'admin' ? '/admin' : '/buyer';
+  const dashboardPath = user?.role === 'admin' ? '/admin' : user?.role === 'farmer' ? '/farmer' : '/buyer';
 
   // Refs
   const animImgRef = useRef(null);
@@ -110,7 +96,6 @@ export default function LandingPage() {
 
   // Preload frames
   useEffect(() => {
-    // Preload frames 1–28 immediately
     for (let i = 1; i <= 28; i++) {
       const img = new Image();
       img.src = framePath(i);
@@ -170,10 +155,9 @@ export default function LandingPage() {
       updateBoxes(frameIndex);
     }
 
-    // Show/hide boxes only while inside the scroll-wrapper zone
     const inZone = progress > 0 && progress < 1;
     const display = inZone ? 'block' : 'none';
-    [box1Ref, box2Ref, box3Ref, box4Ref].forEach(ref => {
+    [box1Ref, box2Ref, box3Ref, box4Ref].forEach((ref) => {
       if (ref.current) ref.current.style.display = display;
     });
   }, [getProgress, lazyLoadRemaining, updateBoxes]);
@@ -190,173 +174,78 @@ export default function LandingPage() {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    onScroll(); // initial render
+    onScroll();
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [onScroll]);
 
-  const ff = '"DM Sans", "Outfit", -apple-system, BlinkMacSystemFont, sans-serif';
-
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f5f0', color: '#1C2B1C', fontFamily: ff }}>
+    <div className="min-h-screen bg-surface-50 text-surface-900 font-sans selection:bg-brand-500/20">
 
-      {/* ── NAVBAR ── */}
-      <nav style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: `${NAV_HEIGHT}px`,
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid #e8f0e4',
-        zIndex: 100,
-        display: 'flex',
-        alignItems: 'center',
-      }}>
-        <div style={{
-          width: '100%',
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 32px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          {/* Logo */}
-          <a href="#" style={{
-            fontSize: '22px',
-            fontWeight: 800,
-            color: '#1C2B1C',
-            textDecoration: 'none',
-            letterSpacing: '-0.5px',
-            fontFamily: ff,
-          }}>
-            Carbon<span style={{ color: '#639922' }}>Unity</span>
-          </a>
-
-          {/* Right side: live badge + nav links + CTA buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-
-
-            {/* Nav links */}
-            {[
-              { label: 'Features', href: '#features' },
-              { label: 'How it Works', href: '#how-it-works' },
-              { label: 'Marketplace', href: '#marketplace' },
-            ].map(({ label, href }) => (
-              <a
-                key={label}
-                href={href}
-                style={{ textDecoration: 'none', color: '#4a6741', fontWeight: 500, fontSize: '0.9rem', fontFamily: ff, whiteSpace: 'nowrap' }}
-                onMouseEnter={e => e.target.style.color = '#2d5016'}
-                onMouseLeave={e => e.target.style.color = '#4a6741'}
-              >
-                {label}
-              </a>
-            ))}
-
-            {/* CTA buttons */}
-            {isAuthenticated ? (
-              <Link to={dashboardPath}>
-                <button className="cu-btn-primary" style={{ padding: '8px 18px', fontSize: '13px', borderRadius: '9px' }}>
-                  Dashboard <IconArrow />
-                </button>
-              </Link>
-            ) : (
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <Link to="/marketplace">
-                  <button className="cu-btn-primary" style={{ padding: '8px 18px', fontSize: '13px', borderRadius: '9px' }}>
-                    Browse Credits
-                  </button>
-                </Link>
-                <Link to="/auth">
-                  <button className="cu-btn-secondary" style={{ padding: '8px 18px', fontSize: '13px', borderRadius: '9px' }}>
-                    Sign In
-                  </button>
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
-
-      {/* ── SCROLL ANIMATION SECTION ── */}
-      {/*
-       * scroll-wrapper is 500vh — creates the scrollable zone.
-       * marginTop equals NAV_HEIGHT so content starts right below navbar.
-       * sticky top = NAV_HEIGHT so the frame fills the remaining viewport.
-       */}
+      {/* ── SCROLL-CONTROLLED ANIMATION HERO ── */}
       <div
         id="how-it-works"
         ref={scrollWrapperRef}
-        style={{
-          position: 'relative',
-          height: '500vh',
-          marginTop: 0,
-        }}
+        className="relative"
+        style={{ height: '480vh' }}
       >
-        <div style={{
-          position: 'sticky',
-          top: 0,
-          width: '100%',
-          height: '100vh',
-          overflow: 'hidden',
-        }}>
-          <div style={{
-            width: '100%',
-            height: '100%',
-            margin: 0,
-            padding: 0,
-
-            overflow: 'hidden',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-          }}>
+        <div className="sticky top-0 w-full h-screen overflow-hidden bg-surface-950">
+          <div className="w-full h-full relative flex items-center justify-center">
             <img
               ref={animImgRef}
               src="/carbonunity-frames/frame_001.jpg"
-              alt="CarbonUnity Animation"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', position: 'absolute', inset: 0 }}
+              alt="CarbonUnity MRV Engine Visualizer"
+              className="w-full h-full object-cover absolute inset-0 filter brightness-95"
             />
+            {/* Ambient vignette */}
+            <div className="absolute inset-0 bg-gradient-to-t from-surface-950/80 via-transparent to-surface-950/40 pointer-events-none" />
+
+            {/* Scroll Indicator Prompt */}
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-white/80 pointer-events-none">
+              <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 font-semibold animate-pulse">
+                Scroll to explore MRV protocol
+              </span>
+              <div className="w-5 h-8 rounded-full border-2 border-white/30 flex items-start justify-center p-1">
+                <div className="w-1 h-2 rounded-full bg-emerald-400 animate-slide-down" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── FLOATING INFO BOXES (fixed to viewport) ── */}
+      {/* ── FLOATING HUD BOXES (Viewport Positioned) ── */}
       <InfoBox
         id="box-1"
         boxRef={box1Ref}
-        title="CarbonUnity"
-        subtitle="Empower Farmers to Generate Carbon Credits"
-        desc="Using AI + satellite data to verify carbon sequestration and unlock value for farmers."
+        title="Decentralized MRV"
+        subtitle="Step 01 • Satellite Sensing"
+        desc="Sentinel-2 multispectral imagery measures vegetation index (NDVI) and biomass changes on agricultural parcels."
         style={{
-          left: '20px',
-          top: `calc(${NAV_HEIGHT}px + 50vh)`,
+          left: '24px',
+          top: `calc(${NAV_HEIGHT}px + 45vh)`,
           transform: 'translateY(-50%)',
         }}
       />
       <InfoBox
         id="box-2"
         boxRef={box2Ref}
-        title="Marketplace"
-        subtitle="Buy Verified Carbon Credits"
-        desc="Access verified, transparent carbon credits from farmers globally. Trade with confidence."
+        title="Verified Soil Carbon"
+        subtitle="Step 02 • Lab Ground-Truth"
+        desc="Integrates government Soil Health Card baselines (SOC, bulk density, depth) into physical carbon stock math."
         style={{
-          right: '20px',
-          top: `calc(${NAV_HEIGHT}px + 50vh)`,
+          right: '24px',
+          top: `calc(${NAV_HEIGHT}px + 45vh)`,
           transform: 'translateY(-50%)',
         }}
       />
       <InfoBox
         id="box-3"
         boxRef={box3Ref}
-        title="AI MRV System"
-        subtitle="Satellite + AI Analysis"
-        desc="Accurate biomass estimation, carbon calculations, and automated verification using machine learning."
+        title="Idempotent Minting"
+        subtitle="Step 03 • Blockchain Protocol"
+        desc="Deterministic smart contracts prevent double-minting and establish immutable audit trails on Sepolia."
         style={{
-          left: '20px',
+          left: '24px',
           top: '50vh',
           transform: 'translateY(-50%)',
         }}
@@ -364,189 +253,141 @@ export default function LandingPage() {
       <InfoBox
         id="box-4"
         boxRef={box4Ref}
-        title="Global Marketplace"
-        subtitle="Instant Credit Settlement"
-        desc="Blockchain-verified credits, transparent pricing, and instant settlement across the globe."
+        title="Direct Payouts"
+        subtitle="Step 04 • Transparent Settlement"
+        desc="Buyers purchase verified credits non-custodially, routing funds directly to smallholder farmers."
         style={{
-          right: '20px',
+          right: '24px',
           top: '50vh',
           transform: 'translateY(-50%)',
         }}
       />
 
-      {/* ── STATS STRIP ── */}
-      <section style={{ background: '#fff', borderBottom: '1px solid #e8f0e4' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 32px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
+      {/* ── IMPACT PROOF STRIP ── */}
+      <section className="bg-white border-y border-surface-200/90 shadow-subtle py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { value: 'Atomic', label: 'Project Creation', icon: '⬡' },
-              { value: 'Sepolia', label: 'Network', icon: '◈' },
-              { value: 'Idempotent', label: 'Verification', icon: '◎' },
-              { value: 'Audited', label: 'Credits', icon: '◆' },
-            ].map((stat, i) => (
-              <div key={stat.label} style={{
-                textAlign: 'center',
-                padding: '32px 20px',
-                borderRight: i < 3 ? '1px solid #e8f0e4' : 'none',
-              }}>
-                <p style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#639922', fontWeight: 700, marginBottom: '8px' }}>
-                  {stat.icon} {stat.label}
-                </p>
-                <p style={{ fontSize: '26px', fontWeight: 800, color: '#1C2B1C', letterSpacing: '-0.5px', margin: 0 }}>
-                  {stat.value}
-                </p>
+              { label: 'Blockchain Network', val: 'Sepolia Testnet', badge: 'Active Contract' },
+              { label: 'MRV Methodology', val: 'SOC & Bulk Density', badge: 'Scientific Depth' },
+              { label: 'Settlement Speed', val: 'Instant On-Chain', badge: 'Non-Custodial' },
+              { label: 'Verification Standard', val: 'Audit-Enforced', badge: 'Deterministic' },
+            ].map((stat) => (
+              <div key={stat.label} className="p-4 rounded-xl bg-surface-50 border border-surface-200/70">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[11px] font-mono uppercase text-brand-700 font-semibold tracking-wider">
+                    {stat.badge}
+                  </span>
+                </div>
+                <p className="text-xl font-bold text-surface-900 tracking-tight">{stat.val}</p>
+                <p className="text-xs text-surface-500 mt-0.5">{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── FEATURES / HOW IT WORKS ── */}
-      <section id="features" style={{ padding: '104px 32px', background: '#f0f5f0', position: 'relative', overflow: 'hidden' }}>
+      {/* ── BENTO-GRID ARCHITECTURE SHOWCASE ── */}
+      <section id="features" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="max-w-2xl mb-16">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 border border-brand-200/80 text-brand-800 text-xs font-bold uppercase tracking-wider mb-3">
+            System Architecture
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-surface-950 tracking-tight">
+            Institutional Trust & Verification Model
+          </h2>
+          <p className="text-surface-600 mt-3 text-base leading-relaxed">
+            Pairing verifiable offline soil sample science with automated blockchain settlement guarantees transparent, high-integrity carbon credits.
+          </p>
+        </div>
 
-        <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(99,153,34,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ maxWidth: '560px', marginBottom: '72px' }}>
-            <p style={{ fontSize: '12px', fontWeight: 700, color: '#639922', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '14px' }}>Why CarbonUnity</p>
-            <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 800, color: '#1C2B1C', letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '18px' }}>
-              Institutional Trust Model
-            </h2>
-            <p style={{ fontSize: '16px', color: '#5a7a5e', lineHeight: 1.7 }}>
-              CarbonUnity utilizes a centralized verification approach paired with decentralized settlement.
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card 1 */}
+          <div className="p-8 rounded-3xl bg-white border border-surface-200 shadow-card hover:shadow-card-hover transition-all duration-300 group">
+            <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-700 border border-brand-200/80 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
+              <IconShield />
+            </div>
+            <span className="text-xs font-mono font-bold text-brand-600">PILLAR 01</span>
+            <h3 className="text-xl font-bold text-surface-900 tracking-tight mt-1 mb-2">Offline Audit Gating</h3>
+            <p className="text-sm text-surface-600 leading-relaxed">
+              Every project undergoes verification of land ownership and farmer identity before on-chain registration to prevent phantom credit issuance.
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-            {[
-              { Icon: IconShield, step: '01', title: 'Admin Verification', desc: 'Projects undergo rigorous offline auditing before being securely onboarded to the platform.', color: '#2d5016', light: '#e4f0dc' },
-              { Icon: IconLeaf, step: '02', title: 'Scientific Calculation', desc: 'Credits are minted using verified soil organic carbon (SOC), bulk density, and depth equations.', color: '#639922', light: '#ecf5e0' },
-              { Icon: IconChain, step: '03', title: 'Immutable Settlement', desc: 'Decentralized purchase execution via smart contracts ensures non-custodial and transparent settlement.', color: '#3dbc6a', light: '#e0f5e9' },
-            ].map(f => (
-              <div
-                key={f.title}
-                style={{ position: 'relative', borderRadius: '20px', overflow: 'hidden', cursor: 'default', transition: 'transform 0.25s ease, box-shadow 0.25s ease' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 20px 48px rgba(45,80,22,0.14)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
-              >
-                <div style={{ background: '#fff', border: `1px solid #e4eede`, borderRadius: '20px', padding: '36px 32px 32px', height: '100%', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '28px' }}>
-                    <div style={{ width: '56px', height: '56px', background: f.light, border: `1.5px solid ${f.color}28`, borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: f.color }}>
-                      <f.Icon />
-                    </div>
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: f.color, opacity: 0.3, letterSpacing: '-0.5px' }}>{f.step}</span>
-                  </div>
-                  <h3 style={{ fontSize: '19px', fontWeight: 700, color: '#1C2B1C', marginBottom: '12px', letterSpacing: '-0.3px' }}>{f.title}</h3>
-                  <p style={{ fontSize: '14px', color: '#5a7a5e', lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
-                </div>
-              </div>
-            ))}
+          {/* Card 2 */}
+          <div className="p-8 rounded-3xl bg-white border border-surface-200 shadow-card hover:shadow-card-hover transition-all duration-300 group">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
+              <IconLeaf />
+            </div>
+            <span className="text-xs font-mono font-bold text-emerald-600">PILLAR 02</span>
+            <h3 className="text-xl font-bold text-surface-900 tracking-tight mt-1 mb-2">Scientific Soil Formulas</h3>
+            <p className="text-sm text-surface-600 leading-relaxed">
+              Calculates carbon credits from verified Soil Health Cards using Soil Organic Carbon (SOC %), bulk density, and depth stratification.
+            </p>
+          </div>
+
+          {/* Card 3 */}
+          <div className="p-8 rounded-3xl bg-white border border-surface-200 shadow-card hover:shadow-card-hover transition-all duration-300 group">
+            <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-700 border border-sky-200/80 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
+              <IconChain />
+            </div>
+            <span className="text-xs font-mono font-bold text-sky-600">PILLAR 03</span>
+            <h3 className="text-xl font-bold text-surface-900 tracking-tight mt-1 mb-2">Non-Custodial Settlement</h3>
+            <p className="text-sm text-surface-600 leading-relaxed">
+              Smart contracts handle peer-to-peer cryptocurrency purchases, executing trustless atomic retirement and instant receipts.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section id="marketplace" style={{ padding: '104px 32px', background: '#fff', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, #2d5016 1px, transparent 1px)', backgroundSize: '32px 32px', opacity: 0.025 }} />
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '700px', height: '700px', background: 'radial-gradient(circle, rgba(99,153,34,0.05) 0%, transparent 65%)', pointerEvents: 'none' }} />
+      {/* ── CALL TO ACTION ── */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+        <div className="p-12 sm:p-16 rounded-3xl bg-gradient-to-b from-surface-900 to-surface-950 text-white shadow-2xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-radial-gradient from-brand-500/10 via-transparent to-transparent pointer-events-none" />
 
-        <div style={{ position: 'relative', maxWidth: '680px', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', background: '#e8f5e0', border: '1px solid #c8ddc0', borderRadius: '20px', marginBottom: '28px' }}>
-            <IconGlobe />
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#4A6741' }}>Open to everyone</span>
-          </div>
+          <div className="relative z-10 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-emerald-400 text-xs font-semibold mb-6">
+              <IconGlobe />
+              <span>Decentralized Climate Capital</span>
+            </div>
 
-          <h2 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 800, color: '#1C2B1C', marginBottom: '20px', letterSpacing: '-1.5px', lineHeight: 1.1 }}>
-            Offset Your Footprint Today
-          </h2>
-          <p style={{ fontSize: '17px', color: '#5a7a5e', marginBottom: '44px', lineHeight: 1.7 }}>
-            Discover verified projects and purchase carbon credits directly on-chain using cryptocurrency.
-          </p>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4">
+              Accelerate Global Carbon Sequestration
+            </h2>
+            <p className="text-surface-300 text-base sm:text-lg mb-8 leading-relaxed">
+              Whether you are an institution offsetting emissions or a farmer generating high-permanence credits, CarbonUnity provides the verified protocol.
+            </p>
 
-          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {isAuthenticated ? (
-              <Link to={dashboardPath}>
-                <button className="cu-btn-primary cu-btn-lg">Go to Dashboard <IconArrow /></button>
-              </Link>
-            ) : (
-              <>
-                <Link to="/marketplace">
-                  <button className="cu-btn-primary cu-btn-lg">Explore Active Projects <IconArrow /></button>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              {isAuthenticated ? (
+                <Link to={dashboardPath}>
+                  <Button variant="primary" size="lg" className="px-8 shadow-glow-brand">
+                    <span>Open Dashboard</span>
+                    <IconArrow />
+                  </Button>
                 </Link>
-                <Link to="/auth">
-                  <button className="cu-btn-secondary">Sign In to Purchase</button>
-                </Link>
-              </>
-            )}
+              ) : (
+                <>
+                  <Link to="/marketplace">
+                    <Button variant="primary" size="lg" className="px-8 shadow-glow-brand">
+                      <span>Explore Verified Credits</span>
+                      <IconArrow />
+                    </Button>
+                  </Link>
+                  <Link to="/auth">
+                    <Button variant="secondary" size="lg" className="px-8 bg-surface-800 text-white border-surface-700 hover:bg-surface-700">
+                      Sign In
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
       <Footer />
-
-      {/* ── GLOBAL STYLES ── */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,800&display=swap');
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        .cu-btn-primary {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          background: #2d5016;
-          color: #fff;
-          border: none;
-          border-radius: 12px;
-          padding: 14px 26px;
-          font-size: 15px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.2s;
-          font-family: "DM Sans", sans-serif;
-          letter-spacing: -0.2px;
-          box-shadow: 0 4px 16px rgba(45,80,22,0.25);
-        }
-        .cu-btn-primary:hover {
-          background: #1a3a0d;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(45,80,22,0.35);
-        }
-        .cu-btn-primary.cu-btn-lg {
-          padding: 16px 36px;
-          font-size: 16px;
-          border-radius: 14px;
-        }
-
-        .cu-btn-secondary {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          background: #fff;
-          color: #2d5016;
-          border: 1.5px solid #c8ddc0;
-          border-radius: 12px;
-          padding: 14px 26px;
-          font-size: 15px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.2s;
-          font-family: "DM Sans", sans-serif;
-          letter-spacing: -0.2px;
-        }
-        .cu-btn-secondary:hover {
-          background: #f0f7ec;
-          border-color: #2d5016;
-          transform: translateY(-2px);
-        }
-
-        @media (max-width: 768px) {
-          .cu-info-box { width: 180px !important; padding: 12px !important; }
-        }
-        @media (max-width: 1024px) {
-          .cu-info-box { width: 240px !important; padding: 16px !important; }
-        }
-      `}</style>
     </div>
   );
 }

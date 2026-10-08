@@ -7,76 +7,53 @@ const LeafIcon = () => (
 );
 
 const BlockchainIcon = () => (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+  <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
   </svg>
 );
 
 export default function Footer() {
   return (
-    <footer style={{
-      background: '#2d5016',
-      borderTop: '1px solid rgba(255,255,255,0.08)',
-      padding: '40px 0 24px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+    <footer className="bg-surface-950 text-surface-400 border-t border-surface-800/80 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
         {/* Top row */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px', marginBottom: '32px' }}>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 pb-8 border-b border-surface-800/60">
           {/* Brand */}
           <div>
-            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', marginBottom: '8px' }}>
-              <div style={{
-                width: '30px', height: '30px', borderRadius: '7px',
-                background: 'rgba(255,255,255,0.15)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff',
-              }}>
-                <LeafIcon />
-              </div>
-              <span style={{ fontSize: '18px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>
-                Carbon<span style={{ color: '#a3d46f' }}>Unity</span>
+            <Link to="/" className="flex items-center mb-2 group">
+              <span className="text-xl font-black tracking-tight text-white font-display">
+                CARBON<span className="text-brand-400 font-extrabold">UNITY</span>
               </span>
             </Link>
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', margin: 0 }}>v2.0 Admin-Managed Release</p>
+            <p className="text-xs text-surface-400">
+              Institutional decentralized carbon verification & settlement protocol.
+            </p>
           </div>
 
           {/* Links */}
-          <div style={{ display: 'flex', gap: '28px', flexWrap: 'wrap', alignItems: 'center' }}>
-            {[
-              { to: '/marketplace', label: 'Marketplace' },
-              { to: '/auth', label: 'Sign In' },
-              { href: '#', label: 'Terms' },
-              { href: '#', label: 'Privacy' },
-            ].map((item) =>
-              item.to ? (
-                <Link key={item.label} to={item.to} style={{ color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}
-                  onMouseEnter={e => e.target.style.color = '#fff'}
-                  onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.65)'}
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <a key={item.label} href={item.href} style={{ color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s' }}
-                  onMouseEnter={e => e.target.style.color = '#fff'}
-                  onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.65)'}
-                >
-                  {item.label}
-                </a>
-              )
-            )}
+          <div className="flex flex-wrap items-center gap-6 text-sm font-medium">
+            <Link to="/marketplace" className="hover:text-white transition-colors">
+              Marketplace
+            </Link>
+            <Link to="/auth" className="hover:text-white transition-colors">
+              Sign In
+            </Link>
+            <a href="#how-it-works" className="hover:text-white transition-colors">
+              Methodology
+            </a>
+            <a href="#features" className="hover:text-white transition-colors">
+              Architecture
+            </a>
           </div>
         </div>
 
-        {/* Divider */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', margin: 0 }}>
-            © {new Date().getFullYear()} CarbonUnity. All rights reserved.
-          </p>
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', margin: 0, display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ color: 'rgba(255,255,255,0.5)', display: 'flex' }}><BlockchainIcon /></span>
-            Built on <span style={{ color: 'rgba(255,255,255,0.7)', marginLeft: '4px', fontWeight: 500 }}>Sepolia Testnet</span>
-          </p>
+        {/* Bottom row */}
+        <div className="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-surface-400">
+          <p>© {new Date().getFullYear()} CarbonUnity Foundation. All rights reserved.</p>
+          <div className="flex items-center gap-2">
+            <BlockchainIcon />
+            <span>Settled on <strong className="text-surface-200 font-mono">Sepolia Testnet</strong></span>
+          </div>
         </div>
       </div>
     </footer>

@@ -6,10 +6,10 @@ const authService = {
     return res.data;
   },
 
-  register: async ({ walletAddress, signature, message, role, displayName }) => {
-    const res = await api.post('/api/auth/register', {
-      walletAddress, signature, message, role, displayName
-    });
+  // Spread rather than a fixed list, so adminCode, phone and
+  // preferredLanguage reach the server without another edit here.
+  register: async (payload) => {
+    const res = await api.post('/api/auth/register', payload);
     return res.data;
   },
 

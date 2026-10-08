@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useWeb3 } from '../context/Web3Context';
 import { useToast } from '../components/common/Toast';
+import Button from '../components/common/Button';
 
 const LeafIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
     <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20C19 20 22 3 22 3c-1 2-8 4-8 4s5-1 5 4c0 0-2-1-5-1 1 0-4 1-4 6 0 0-1-3-3-4 0 0 1 5 5 5 0 0-3 2-7 0 1.17 2.52 3.1 4.23 6 4.65C19.85 18.2 21 12 17 8z"/>
   </svg>
 );
 
 const WalletIcon = () => (
-  <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+  <svg className="w-8 h-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18-3a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V9" />
   </svg>
 );
@@ -23,9 +24,12 @@ export default function AuthPage() {
   const toast = useToast();
 
   const [mode, setMode] = useState('login');
-  const [role, setRole] = useState('buyer');
+  const [role, setRole] = useState('farmer');
   const [displayName, setDisplayName] = useState('');
+  const [adminCode, setAdminCode] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const homeFor = (r) => (r === 'admin' ? '/admin' : r === 'farmer' ? '/farmer' : '/buyer');
 
   if (isAuthenticated) {
     navigate(isAdmin ? '/admin' : '/buyer', { replace: true });
@@ -40,12 +44,15 @@ export default function AuthPage() {
       if (mode === 'login') {
         const user = await login(account);
         toast.success('Welcome back!');
-        navigate(user.role === 'admin' ? '/admin' : '/buyer');
+        navigate(homeFor(user.role));
       } else {
         if (!displayName.trim()) { toast.error('Please enter a display name'); setLoading(false); return; }
-        const user = await register(account, role, displayName);
+        if (role === 'admin' && !adminCode.trim()) {
+          toast.error('Enter the admin code'); setLoading(false); return;
+        }
+        const user = await register(account, role, displayName, { adminCode });
         toast.success('Account created!');
-        navigate(user.role === 'admin' ? '/admin' : '/buyer');
+        navigate(homeFor(user.role));
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Authentication failed');
@@ -55,122 +62,212 @@ export default function AuthPage() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh', background: '#f0f5f0',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '24px 16px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    }}>
-      {/* Brand */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#2d5016', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-          <LeafIcon />
-        </div>
-        <span style={{ fontSize: '26px', fontWeight: 800, color: '#1C2B1C', letterSpacing: '-0.5px' }}>
-          Carbon<span style={{ color: '#639922' }}>Unity</span>
-        </span>
+    <div className="min-h-[calc(100vh-4rem)] bg-surface-50 flex flex-col items-center justify-center p-4 sm:p-6 font-sans">
+      {/* Brand Header */}
+      <div className="flex flex-col items-center mb-8 text-center animate-fade-in">
+        <Link to="/" className="flex items-center mb-2 group">
+          <span className="text-2xl font-black tracking-tight text-surface-900 font-display">
+            CARBON<span className="text-brand-600 font-extrabold">UNITY</span>
+          </span>
+        </Link>
+        <p className="text-sm font-medium text-surface-500">
+          Decentralized verification and non-custodial carbon trading
+        </p>
       </div>
-      <p style={{ fontSize: '14px', color: '#6a8a6e', marginBottom: '32px' }}>Verified carbon credits, on-chain</p>
 
-      {/* Card */}
-      <div style={{
-        background: '#fff', borderRadius: '20px', width: '100%', maxWidth: '420px',
-        boxShadow: '0 4px 24px rgba(30,80,30,0.10), 0 1px 4px rgba(30,80,30,0.06)',
-        border: '1px solid #d4e8d4', overflow: 'hidden',
-      }}>
-        {/* Tab switcher */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#f0f5f0', padding: '6px', gap: '4px' }}>
-          {['login', 'register'].map(m => (
-            <button key={m} onClick={() => setMode(m)} style={{
-              padding: '10px', borderRadius: '10px', border: 'none',
-              fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.18s',
-              background: mode === m ? '#2d5016' : 'transparent',
-              color: mode === m ? '#fff' : '#6a8a6e',
-            }}>
-              {m === 'login' ? 'Sign In' : 'Register'}
-            </button>
-          ))}
+      {/* Auth Card */}
+      <div className="w-full max-w-md bg-white rounded-3xl border border-surface-200 shadow-card-hover overflow-hidden animate-scale-in">
+        {/* Tab Switcher */}
+        <div className="p-1.5 bg-surface-100/80 border-b border-surface-200/80 grid grid-cols-2 gap-1">
+          <button
+            type="button"
+            onClick={() => setMode('login')}
+            className={`py-2 text-sm font-semibold rounded-xl transition-all ${
+              mode === 'login'
+                ? 'bg-white text-surface-900 shadow-subtle'
+                : 'text-surface-500 hover:text-surface-900'
+            }`}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('register')}
+            className={`py-2 text-sm font-semibold rounded-xl transition-all ${
+              mode === 'register'
+                ? 'bg-white text-surface-900 shadow-subtle'
+                : 'text-surface-500 hover:text-surface-900'
+            }`}
+          >
+            Create Account
+          </button>
         </div>
 
-        {/* Body */}
-        <div style={{ padding: '28px 28px 32px' }}>
+        {/* Card Body */}
+        <div className="p-6 sm:p-8">
           {!account ? (
-            <div style={{ background: '#f0f7ec', border: '1px solid #c8ddc0', borderRadius: '14px', padding: '28px 20px', textAlign: 'center' }}>
-              <div style={{ width: '60px', height: '60px', background: '#e0f0d8', border: '1px solid #b8d8b0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#2d5016' }}>
+            <div className="p-6 rounded-2xl bg-brand-50/50 border border-brand-200/60 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-brand-100 text-brand-800 flex items-center justify-center mx-auto mb-4 shadow-subtle">
                 <WalletIcon />
               </div>
-              <p style={{ fontSize: '16px', fontWeight: 700, color: '#1C2B1C', marginBottom: '6px' }}>Connect your wallet</p>
-              <p style={{ fontSize: '13px', color: '#6a8a6e', marginBottom: '20px' }}>MetaMask is required to sign in to CarbonUnity</p>
-              <button
+              <h3 className="text-base font-bold text-surface-900 mb-1">Web3 Wallet Required</h3>
+              <p className="text-xs text-surface-600 mb-6 leading-relaxed">
+                Connect MetaMask or your browser Web3 wallet to authenticate seamlessly on Sepolia.
+              </p>
+              <Button
+                variant="primary"
                 onClick={connectWallet}
                 disabled={!hasMetaMask}
-                style={{
-                  width: '100%', border: 'none', borderRadius: '10px', padding: '12px',
-                  fontSize: '14px', fontWeight: 600, cursor: hasMetaMask ? 'pointer' : 'not-allowed',
-                  background: hasMetaMask ? '#2d5016' : '#9BB89A', color: '#fff', transition: 'background 0.18s',
-                }}
-                onMouseEnter={e => { if (hasMetaMask) e.currentTarget.style.background = '#1C4018'; }}
-                onMouseLeave={e => { if (hasMetaMask) e.currentTarget.style.background = '#2d5016'; }}
+                className="w-full shadow-glow-brand"
               >
                 {hasMetaMask ? 'Connect MetaMask' : 'Install MetaMask First'}
-              </button>
+              </Button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit}>
-              {/* Connected wallet */}
-              <div style={{ background: '#f0f7ec', border: '1px solid #c8ddc0', borderRadius: '10px', padding: '10px 14px', marginBottom: '20px' }}>
-                <div style={{ fontSize: '11px', color: '#8aaa8e', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Connected wallet</div>
-                <div style={{ fontSize: '13px', color: '#2d5016', fontWeight: 600, fontFamily: 'monospace' }}>{account.slice(0, 8)}...{account.slice(-6)}</div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Connected Wallet Pill */}
+              <div className="p-3 rounded-xl bg-surface-50 border border-surface-200 flex items-center justify-between">
+                <div>
+                  <span className="block text-[10px] font-mono uppercase tracking-wider text-surface-400 font-semibold">
+                    Connected Wallet
+                  </span>
+                  <span className="text-xs font-mono font-bold text-brand-800">
+                    {account.slice(0, 8)}...{account.slice(-6)}
+                  </span>
+                </div>
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Sepolia
+                </span>
               </div>
 
               {mode === 'register' && (
                 <>
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#3a5e3e', marginBottom: '6px' }}>Display Name</label>
+                  <div>
+                    <label className="block text-xs font-bold text-surface-700 uppercase tracking-wider mb-1.5">
+                      Display Name
+                    </label>
                     <input
-                      type="text" value={displayName} onChange={e => setDisplayName(e.target.value)}
-                      placeholder="Your name" required
-                      style={{ width: '100%', background: '#f8fbf8', border: '1px solid #d0e4d0', borderRadius: '9px', padding: '10px 14px', fontSize: '14px', color: '#1C2B1C', outline: 'none', boxSizing: 'border-box' }}
-                      onFocus={e => e.target.style.borderColor = '#2d5016'}
-                      onBlur={e => e.target.style.borderColor = '#d0e4d0'}
+                      type="text"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      placeholder="e.g. Ramesh Patil or Green Capital"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-surface-200 bg-white text-surface-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                     />
                   </div>
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#3a5e3e', marginBottom: '6px' }}>Account Type</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+
+                  <div>
+                    <label className="block text-xs font-bold text-surface-700 uppercase tracking-wider mb-1.5">
+                      Account Role
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
                       {[
-                        { value: 'buyer', label: 'Buyer', icon: '🛒', desc: 'Purchase carbon credits' },
-                        { value: 'admin', label: 'Admin', icon: '🛡️', desc: 'Manage projects' },
-                      ].map(opt => (
-                        <button key={opt.value} type="button" onClick={() => setRole(opt.value)} style={{
-                          padding: '14px 10px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
-                          border: role === opt.value ? '2px solid #2d5016' : '1.5px solid #d0e4d0',
-                          background: role === opt.value ? '#f0f7ec' : '#fafcfa',
-                        }}>
-                          <span style={{ fontSize: '22px', display: 'block', marginBottom: '6px' }}>{opt.icon}</span>
-                          <span style={{ fontSize: '13px', fontWeight: 700, color: '#1C2B1C', display: 'block' }}>{opt.label}</span>
-                          <span style={{ fontSize: '11px', color: '#8aaa8e', display: 'block', marginTop: '2px' }}>{opt.desc}</span>
+                        {
+                          value: 'farmer',
+                          label: 'Farmer',
+                          icon: (
+                            <svg className="w-5 h-5 text-brand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5m-15 10.5V10.5" />
+                            </svg>
+                          ),
+                          desc: 'Land & MRV'
+                        },
+                        {
+                          value: 'buyer',
+                          label: 'Buyer',
+                          icon: (
+                            <svg className="w-5 h-5 text-brand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                            </svg>
+                          ),
+                          desc: 'Trade & Offset'
+                        },
+                        {
+                          value: 'admin',
+                          label: 'Admin',
+                          icon: (
+                            <svg className="w-5 h-5 text-brand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                            </svg>
+                          ),
+                          desc: 'Audit Host'
+                        },
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setRole(opt.value)}
+                          className={`p-3 rounded-xl border text-left transition-all ${
+                            role === opt.value
+                              ? 'border-brand-600 bg-brand-50/70 shadow-subtle ring-1 ring-brand-500'
+                              : 'border-surface-200 hover:border-surface-300 bg-white'
+                          }`}
+                        >
+                          <div className="mb-2">{opt.icon}</div>
+                          <span className="text-xs font-bold text-surface-900 block">{opt.label}</span>
+                          <span className="text-[10px] text-surface-500 block">{opt.desc}</span>
                         </button>
                       ))}
                     </div>
                   </div>
+
+                  {role === 'admin' && (
+                    <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200">
+                      <label className="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">
+                        Admin Secret Passcode
+                      </label>
+                      <input
+                        type="password"
+                        value={adminCode}
+                        onChange={(e) => setAdminCode(e.target.value)}
+                        placeholder="Required for administrative accounts"
+                        className="w-full px-3 py-2 rounded-lg border border-amber-300 bg-white text-sm text-surface-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                      <span className="text-[10px] text-amber-700 mt-1 block">
+                        Requires valid ADMIN_SIGNUP_CODE environment key
+                      </span>
+                    </div>
+                  )}
                 </>
               )}
 
-              <button
-                type="submit" disabled={loading}
-                style={{ width: '100%', background: '#2d5016', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px', fontSize: '14px', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, transition: 'background 0.18s', marginTop: '4px' }}
-                onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#1C4018'; }}
-                onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#2d5016'; }}
+              <Button
+                type="submit"
+                variant="primary"
+                loading={loading}
+                className="w-full mt-2 shadow-glow-brand"
               >
-                {loading ? 'Signing...' : mode === 'login' ? 'Sign In with Wallet' : 'Create Account'}
-              </button>
+                {loading
+                  ? 'Authenticating...'
+                  : mode === 'login'
+                  ? 'Sign In with Wallet'
+                  : 'Complete Registration'}
+              </Button>
 
-              <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px', color: '#8aaa8e' }}>
+              <div className="text-center pt-2 text-xs text-surface-500">
                 {mode === 'login' ? (
-                  <>New here?{' '}<button type="button" onClick={() => setMode('register')} style={{ color: '#2d5016', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px' }}>Create account</button></>
+                  <p>
+                    Don't have an account yet?{' '}
+                    <button
+                      type="button"
+                      onClick={() => setMode('register')}
+                      className="font-bold text-brand-700 hover:underline"
+                    >
+                      Create one
+                    </button>
+                  </p>
                 ) : (
-                  <>Already registered?{' '}<button type="button" onClick={() => setMode('login')} style={{ color: '#2d5016', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px' }}>Sign in</button></>
+                  <p>
+                    Already registered?{' '}
+                    <button
+                      type="button"
+                      onClick={() => setMode('login')}
+                      className="font-bold text-brand-700 hover:underline"
+                    >
+                      Sign In
+                    </button>
+                  </p>
                 )}
               </div>
             </form>

@@ -7,6 +7,12 @@ require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
+const farmerRoutes = require('./routes/farmerRoutes');
+const projectRoutes = require('./routes/projectRoutes');
+const advisoryRoutes = require('./routes/advisoryRoutes');
+const sensingRoutes = require('./routes/sensingRoutes');
+const agentRoutes = require('./routes/agentRoutes');
+const alertRoutes = require('./routes/alertRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -54,6 +60,12 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
+app.use('/api/farmer', farmerRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/advisory', advisoryRoutes);
+app.use('/api/sensing', sensingRoutes);
+app.use('/api/agent', agentRoutes);
+app.use('/api/alerts', alertRoutes);
 
 // ============================================
 // ERROR HANDLING

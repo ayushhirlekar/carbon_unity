@@ -12,15 +12,23 @@ export default function RoleSelector({ onSelect }) {
       value: ROLES.FARMER,
       label: 'Farmer',
       description: 'Generate carbon credits from your farms and sell on the marketplace',
-      icon: '🌾',
-      color: 'border-brand-400 bg-brand-50 ring-brand-200',
+      icon: (
+        <svg className="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5m-15 10.5V10.5" />
+        </svg>
+      ),
+      color: 'border-brand-500 bg-brand-50/60 ring-brand-200',
     },
     {
       value: ROLES.BUYER,
       label: 'Buyer',
       description: 'Purchase carbon credits to offset your carbon footprint',
-      icon: '🏢',
-      color: 'border-gold-400 bg-gold-50 ring-gold-200',
+      icon: (
+        <svg className="w-6 h-6 text-brand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.75a1.5 1.5 0 011.5-1.5h1.5a1.5 1.5 0 011.5 1.5V21" />
+        </svg>
+      ),
+      color: 'border-brand-500 bg-brand-50/60 ring-brand-200',
     },
   ];
 
@@ -48,7 +56,9 @@ export default function RoleSelector({ onSelect }) {
             `}
             id={`role-${role.value}`}
           >
-            <span className="text-3xl mb-3 block">{role.icon}</span>
+            <div className="w-11 h-11 rounded-xl bg-white border border-surface-200/80 flex items-center justify-center mb-3 shadow-subtle">
+              {role.icon}
+            </div>
             <h4 className="font-bold text-surface-900 mb-1">{role.label}</h4>
             <p className="text-xs text-surface-500 leading-relaxed">{role.description}</p>
           </button>

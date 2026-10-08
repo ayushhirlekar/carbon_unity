@@ -64,8 +64,22 @@ const buyerOnly = (req, res, next) => {
   next();
 };
 
+/**
+ * Restrict to farmer role only
+ */
+const farmerOnly = (req, res, next) => {
+  if (req.user.role !== 'farmer') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Farmers only.'
+    });
+  }
+  next();
+};
+
 module.exports = {
   authenticate,
   adminOnly,
-  buyerOnly
+  buyerOnly,
+  farmerOnly
 };

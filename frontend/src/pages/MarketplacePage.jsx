@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import marketplaceService from '../services/marketplaceService';
+import Button from '../components/common/Button';
+import Skeleton from '../components/common/Skeleton';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&q=80';
 
@@ -27,153 +29,183 @@ export default function MarketplacePage() {
   };
 
   const toggleVerify = (type) => {
-    setVerifyFilter(prev =>
-      prev.includes(type) ? prev.filter(v => v !== type) : [...prev, type]
+    setVerifyFilter((prev) =>
+      prev.includes(type) ? prev.filter((v) => v !== type) : [...prev, type]
     );
   };
 
-  const filteredListings = listings.filter(l => {
-    const tags = (l.practice_tags || []).map(t => t.toLowerCase());
+  const filteredListings = listings.filter((l) => {
+    const tags = (l.practice_tags || []).map((t) => t.toLowerCase());
     const std = (l.verification_standard || '').toLowerCase();
     const practiceMatch = practiceFilter === 'all' || tags.includes(practiceFilter);
     const isGold = std.includes('gold');
     const isVcs = std.includes('vcs');
-    const verifyMatch = verifyFilter.length === 0 ||
+    const verifyMatch =
+      verifyFilter.length === 0 ||
       (verifyFilter.includes('gold') && isGold) ||
       (verifyFilter.includes('vcs') && isVcs);
     return practiceMatch && verifyMatch;
   });
 
-  // Stats
-  const totalCO2 = listings.reduce((s, l) => s + parseFloat(l.carbon_data?.carbon_data?.[0]?.co2_equivalent || 0), 0);
-  const totalCredits = listings.reduce((s, l) => s + parseFloat(l.credits_available || 0), 0);
+  // Aggregate stats
+  const totalCO2 = listings.reduce(
+    (s, l) => s + parseFloat(l.carbon_data?.carbon_data?.[0]?.co2_equivalent || 0),
+    0
+  );
+  const totalCredits = listings.reduce(
+    (s, l) => s + parseFloat(l.credits_available || 0),
+    0
+  );
   const avgPrice = listings.length
-    ? (listings.reduce((s, l) => s + parseFloat(l.price_per_credit || 0), 0) / listings.length)
+    ? listings.reduce((s, l) => s + parseFloat(l.price_per_credit || 0), 0) / listings.length
     : 0;
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#0f0f1a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ width: 40, height: 40, border: '3px solid #639922', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto 16px', animation: 'spin 0.8s linear infinite' }} />
-          <p style={{ color: '#4A6741', fontFamily: 'system-ui, sans-serif' }}>Loading marketplace...</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+        <div className="h-10 w-72 mb-2"><Skeleton className="h-10 w-full" /></div>
+        <div className="h-5 w-96 mb-8"><Skeleton className="h-5 w-full" /></div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-24"><Skeleton className="h-full w-full rounded-2xl" /></div>
+          ))}
         </div>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-96"><Skeleton className="h-full w-full rounded-3xl" /></div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ background: '#EEF2EE', minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 24px' }}>
+    <div className="min-h-screen bg-surface-50 py-8 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="max-w-7xl mx-auto animate-fade-in">
 
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+        {/* Header Bar */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-6 border-b border-surface-200">
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1C2B1C', margin: 0 }}>
-              Regional Carbon Credit Projects — India
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-800 text-xs font-bold uppercase tracking-wider mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live Carbon Registry
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-950 tracking-tight">
+              Verified Carbon Credit Projects
             </h1>
-            <p style={{ fontSize: 13, color: '#4A6741', marginTop: 3 }}>
-              Verified farm-based carbon sequestration across Maharashtra & India
+            <p className="text-sm text-surface-600 mt-1">
+              Satellite-verified, smallholder soil carbon sequestration ready for on-chain retirement
             </p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            {/* Practice filters */}
-            <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
-              {['all', 'agroforestry', 'regenerative', 'organic'].map(f => (
-                <button key={f} onClick={() => setPracticeFilter(f)} style={{
-                  fontSize: 12, padding: '6px 15px', borderRadius: 20,
-                  border: `1px solid ${practiceFilter === f ? '#2D5A27' : '#B8CCAE'}`,
-                  background: practiceFilter === f ? '#2D5A27' : 'transparent',
-                  color: practiceFilter === f ? '#fff' : '#4A6741',
-                  cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500, transition: 'all .18s'
-                }}>
-                  {f.charAt(0).toUpperCase() + f.slice(1)}
-                </button>
-              ))}
-            </div>
-            {/* Add Project — admin only */}
-            {isAdmin && (
-              <Link to="/admin/create-project" style={{
-                padding: '9px 20px', background: '#2D5A27', color: '#fff',
-                borderRadius: 10, fontSize: 13, fontWeight: 600,
-                textDecoration: 'none', transition: 'background .18s'
-              }}>
-                + Add Project
-              </Link>
-            )}
+
+          {isAdmin && (
+            <Link to="/admin/create-project">
+              <Button variant="primary" size="md" className="shadow-glow-brand">
+                <span>+ Launch New Project</span>
+              </Button>
+            </Link>
+          )}
+        </div>
+
+        {/* Toolbar & Filters */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          {/* Practice Tags Filter */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-xs font-bold text-surface-500 uppercase tracking-wider mr-1">Practice:</span>
+            {['all', 'agroforestry', 'regenerative', 'organic'].map((f) => (
+              <button
+                key={f}
+                onClick={() => setPracticeFilter(f)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  practiceFilter === f
+                    ? 'bg-brand-800 text-white shadow-subtle'
+                    : 'bg-white text-surface-600 border border-surface-200 hover:border-surface-300'
+                }`}
+              >
+                {f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Verification Standards Toggle */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-surface-500 uppercase tracking-wider mr-1">Standards:</span>
+            {[
+              { key: 'gold', label: 'Gold Standard', color: 'bg-amber-500' },
+              { key: 'vcs', label: 'VCS Verified', color: 'bg-sky-500' },
+            ].map((v) => (
+              <button
+                key={v.key}
+                onClick={() => toggleVerify(v.key)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+                  verifyFilter.includes(v.key)
+                    ? 'bg-white text-surface-900 border-surface-300 shadow-subtle'
+                    : 'bg-surface-100 text-surface-400 border-transparent opacity-60'
+                }`}
+              >
+                <span className={`w-2 h-2 rounded-full ${v.color}`} />
+                <span>{v.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Verification filter */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: 12, color: '#4A6741', fontWeight: 500, marginRight: 4 }}>Verification:</span>
+        {/* KPI Strip */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { key: 'gold', label: 'Gold Standard', dot: '#c9a961', activeBg: '#fdf3dc', activeBorder: '#c9a961', activeColor: '#7a5c10' },
-            { key: 'vcs', label: 'VCS Verified', dot: '#378ADD', activeBg: '#e6f1fb', activeBorder: '#378ADD', activeColor: '#185FA5' },
-          ].map(v => (
-            <button key={v.key} onClick={() => toggleVerify(v.key)} style={{
-              fontSize: 12, padding: '5px 14px', borderRadius: 6,
-              border: `1px solid ${verifyFilter.includes(v.key) ? v.activeBorder : '#B8CCAE'}`,
-              background: verifyFilter.includes(v.key) ? v.activeBg : '#fff',
-              color: verifyFilter.includes(v.key) ? v.activeColor : '#4A6741',
-              cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500,
-              display: 'flex', alignItems: 'center', gap: 6, transition: 'all .18s'
-            }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: v.dot, display: 'inline-block' }} />
-              {v.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Stats bar */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 12, marginBottom: 22 }}>
-          {[
-            { label: 'Active Projects', value: listings.length, suffix: '' },
-            { label: 'Total CO₂ Offset', value: totalCO2 >= 1000 ? `${(totalCO2/1000).toFixed(1)}k` : Math.round(totalCO2), suffix: 'tons/yr' },
-            { label: 'Total Credits', value: Math.round(totalCredits).toLocaleString(), suffix: 'available' },
-            { label: 'Avg. Price / Credit', value: avgPrice.toFixed(6), suffix: 'ETH' },
-          ].map(s => (
-            <div key={s.label} style={{ background: '#fff', borderRadius: 12, padding: '14px 16px', border: '1px solid #D4E6CE' }}>
-              <div style={{ fontSize: 11, color: '#4A6741', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 4 }}>{s.label}</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: '#1C2B1C' }}>
-                {s.value} <span style={{ fontSize: 12, color: '#2D5A27', fontWeight: 400 }}>{s.suffix}</span>
+            { label: 'Active Projects', value: listings.length, sub: 'Verified' },
+            {
+              label: 'Total CO₂ Offset',
+              value: totalCO2 >= 1000 ? `${(totalCO2 / 1000).toFixed(1)}k` : Math.round(totalCO2),
+              sub: 'Tons / yr',
+            },
+            {
+              label: 'Available Credits',
+              value: Math.round(totalCredits).toLocaleString(),
+              sub: 'Ready to mint',
+            },
+            {
+              label: 'Average Price',
+              value: `${avgPrice.toFixed(6)}`,
+              sub: 'ETH / credit',
+            },
+          ].map((s) => (
+            <div key={s.label} className="p-4 rounded-2xl bg-white border border-surface-200/90 shadow-card">
+              <span className="text-[11px] font-bold text-surface-400 uppercase tracking-wider">{s.label}</span>
+              <div className="text-xl sm:text-2xl font-bold text-surface-900 tracking-tight mt-1">
+                {s.value} <span className="text-xs text-brand-700 font-medium">{s.sub}</span>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Error */}
+        {/* Error Notification */}
         {error && (
-          <div style={{ background: 'rgba(192,57,43,0.1)', border: '1px solid rgba(192,57,43,0.3)', color: '#c0392b', padding: '12px 20px', borderRadius: 10, marginBottom: 20, textAlign: 'center' }}>
+          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm mb-6 text-center">
             {error}
           </div>
         )}
 
-        {/* Cards grid */}
+        {/* Project Cards Grid */}
         {filteredListings.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#4A6741' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>🌿</div>
-            <p style={{ fontSize: 16, marginBottom: 8, color: '#1C2B1C' }}>No projects match your filters</p>
-            <p style={{ fontSize: 13 }}>Try adjusting the filters above</p>
+          <div className="text-center py-20 bg-white rounded-3xl border border-surface-200 p-8 shadow-card">
+            <div className="w-14 h-14 rounded-2xl bg-surface-100 text-surface-500 flex items-center justify-center mx-auto mb-3 shadow-subtle">
+              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-surface-900">No active projects match your filters</h3>
+            <p className="text-xs text-surface-500 mt-1">Try resetting the practice tags or standards.</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
-            {filteredListings.map(listing => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredListings.map((listing) => (
               <ListingCard key={listing.listing_id} listing={listing} />
             ))}
           </div>
         )}
-      </div>
 
-      <style>{`
-        .cu-card { transition: transform .22s ease, box-shadow .22s ease; }
-        .cu-card:hover { transform: translateY(-5px) scale(1.013); box-shadow: 0 14px 36px rgba(30,60,25,.13); }
-        .cu-card:hover .cu-img { transform: scale(1.07); }
-        .cu-btn-primary:hover { background: #1C4018 !important; }
-        .cu-btn-secondary:hover { background: #D6EDCC !important; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
+      </div>
     </div>
   );
 }
@@ -187,117 +219,117 @@ function ListingCard({ listing }) {
   const co2 = parseFloat(carbonData.co2_equivalent || 0);
   const creditsAvailable = parseFloat(listing.credits_available || 0);
   const creditsGenerated = parseFloat(carbonData.credits_generated || creditsAvailable);
-  const soldPct = creditsGenerated > 0
-    ? Math.round(((creditsGenerated - creditsAvailable) / creditsGenerated) * 100)
-    : 0;
+  const soldPct =
+    creditsGenerated > 0
+      ? Math.round(((creditsGenerated - creditsAvailable) / creditsGenerated) * 100)
+      : 0;
 
   return (
-    <Link to={`/marketplace/${listing.listing_id}`} style={{ textDecoration: 'none' }}>
-      <div className="cu-card" style={{
-        background: '#FAFCF8', borderRadius: 16, overflow: 'hidden',
-        border: '1px solid #C8DDBE', cursor: 'pointer',
-        display: 'flex', flexDirection: 'column'
-      }}>
-        {/* Image */}
-        <div style={{ position: 'relative', height: 168, overflow: 'hidden', flexShrink: 0 }}>
-          <img
-            className="cu-img"
-            src={listing.cover_image_url || FALLBACK_IMAGE}
-            alt={listing.title}
-            loading="lazy"
-            onError={e => { e.target.src = FALLBACK_IMAGE }}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .4s ease', display: 'block' }}
-          />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(10,30,10,0) 35%, rgba(10,30,10,.45) 100%)', pointerEvents: 'none' }} />
+    <div className="bg-white rounded-3xl border border-surface-200 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group">
+      {/* Cover Image & Badges */}
+      <div className="relative h-48 overflow-hidden bg-surface-900">
+        <img
+          src={listing.cover_image_url || FALLBACK_IMAGE}
+          alt={listing.title}
+          loading="lazy"
+          onError={(e) => { e.target.src = FALLBACK_IMAGE; }}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-surface-950/80 via-transparent to-transparent pointer-events-none" />
 
-          {/* Price badge */}
-          <div style={{ position: 'absolute', top: 12, right: 12, background: '#FAFCF8', borderRadius: 10, padding: '5px 12px', fontSize: 14, fontWeight: 600, color: '#1C4A18', border: '1px solid #B8DDAC' }}>
-            {parseFloat(listing.price_per_credit).toFixed(6)} ETH
-          </div>
+        {/* Price Chip */}
+        <div className="absolute top-3 right-3 px-3 py-1 rounded-xl bg-white/95 backdrop-blur-md border border-white/80 text-surface-900 text-xs font-mono font-bold shadow-subtle">
+          {parseFloat(listing.price_per_credit).toFixed(6)} ETH
+        </div>
 
-          {/* Vintage badge */}
+        {/* Vintage & Standard Chips */}
+        <div className="absolute top-3 left-3 flex items-center gap-1.5">
           {listing.vintage_year && (
-            <div style={{ position: 'absolute', top: 12, left: 12, background: 'rgba(250,252,248,.92)', borderRadius: 8, padding: '4px 9px', fontSize: 11, fontWeight: 500, color: '#3B5E38', border: '1px solid #C0D8B4' }}>
+            <span className="px-2.5 py-0.5 rounded-lg bg-surface-900/80 backdrop-blur-md text-white text-[11px] font-mono font-medium">
               {listing.vintage_year}
-            </div>
-          )}
-        </div>
-
-        {/* Body */}
-        <div style={{ padding: '16px 16px 0', flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: 15, fontWeight: 600, color: '#1C2B1C', lineHeight: 1.4, marginBottom: 4 }}>
-            {listing.title}
-          </div>
-          {listing.subtitle && (
-            <div style={{ fontSize: 12, color: '#4A6741', marginBottom: 12, lineHeight: 1.45 }}>
-              {listing.subtitle}
-            </div>
-          )}
-
-          {/* Meta row */}
-          <div style={{ display: 'flex', marginBottom: 12, borderTop: '1px solid #D8E8D0', borderBottom: '1px solid #D8E8D0', padding: '10px 0' }}>
-            {[
-              { val: farm.district || listing.location || '—', label: 'District' },
-              { val: farm.number_of_farmers || '—', label: 'Farmers' },
-              { val: farm.area ? `${farm.area} ha` : '—', label: 'Area' },
-            ].map((m, i) => (
-              <div key={i} style={{ flex: 1, textAlign: 'center', borderLeft: i > 0 ? '1px solid #D8E8D0' : 'none' }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#1C2B1C', display: 'block' }}>{m.val}</span>
-                <span style={{ fontSize: 10, color: '#4A6741', display: 'block', marginTop: 1, textTransform: 'uppercase', letterSpacing: '.4px' }}>{m.label}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* CO2 + Verification */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <div style={{ background: '#D6EDCC', color: '#1C4A18', fontSize: 12, fontWeight: 500, padding: '5px 12px', borderRadius: 20 }}>
-              {co2.toLocaleString()} tons CO₂/yr
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 500, color: isGold ? '#8a6310' : '#185FA5' }}>
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: isGold ? '#c9a961' : '#378ADD', display: 'inline-block' }} />
-              {isGold ? 'Gold Standard' : 'VCS Verified'}
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#4A6741', marginBottom: 5 }}>
-              <span>Credits sold</span>
-              <span>{soldPct}%</span>
-            </div>
-            <div style={{ height: 5, background: '#D8E8D0', borderRadius: 10, overflow: 'hidden' }}>
-              <div style={{ height: '100%', borderRadius: 10, background: '#3A8A2A', width: `${soldPct}%`, transition: 'width .6s ease' }} />
-            </div>
-          </div>
-
-          {/* Tags */}
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
-            {tags.slice(0, 3).map(tag => (
-              <span key={tag} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 6, background: '#E2EED9', color: '#2D5A27', fontWeight: 500 }}>
-                {tag}
-              </span>
-            ))}
-            <span style={{ fontSize: 11, padding: '3px 9px', borderRadius: 6, background: isGold ? '#fdf3dc' : '#e6f1fb', color: isGold ? '#7a5c10' : '#185FA5', fontWeight: 500 }}>
-              {isGold ? 'Gold Standard' : 'VCS Verified'}
             </span>
-            {farm.is_verified && (
-              <span style={{ fontSize: 11, padding: '3px 9px', borderRadius: 6, background: '#E2EED9', color: '#2D5A27', fontWeight: 500 }}>
-                ✓ Verified
-              </span>
-            )}
-          </div>
+          )}
+          <span className={`px-2.5 py-0.5 rounded-lg backdrop-blur-md text-white text-[11px] font-bold ${isGold ? 'bg-amber-600/90' : 'bg-sky-600/90'}`}>
+            {isGold ? 'Gold Standard' : 'VCS'}
+          </span>
         </div>
 
-        {/* Footer buttons */}
-        <div style={{ padding: '12px 16px 16px', display: 'flex', gap: 8, marginTop: 'auto', borderTop: '1px solid #D8E8D0' }}>
-          <button className="cu-btn-primary" style={{ flex: 1, padding: '9px 0', background: '#2D5A27', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'background .18s', fontFamily: 'inherit' }}>
-            View Details
-          </button>
-          <button className="cu-btn-secondary" style={{ padding: '9px 14px', background: 'transparent', color: '#2D5A27', border: '1px solid #3A8A2A', borderRadius: 10, fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all .18s', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
-            Buy Credits
-          </button>
+        {/* Bottom image overlay stats */}
+        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs">
+          <span className="font-semibold">{farm.district || listing.location || 'Maharashtra, IN'}</span>
+          <span className="text-emerald-300 font-mono font-bold">{co2.toLocaleString()} tCO₂e/yr</span>
         </div>
       </div>
-    </Link>
+
+      {/* Card Content */}
+      <div className="p-5 flex-1 flex flex-col">
+        <h3 className="text-base font-bold text-surface-900 tracking-tight group-hover:text-brand-700 transition-colors line-clamp-1 mb-1">
+          {listing.title}
+        </h3>
+        {listing.subtitle && (
+          <p className="text-xs text-surface-500 line-clamp-2 leading-relaxed mb-4">
+            {listing.subtitle}
+          </p>
+        )}
+
+        {/* Specs Table */}
+        <div className="grid grid-cols-3 gap-2 py-2.5 px-3 rounded-xl bg-surface-50 border border-surface-100 text-center mb-4">
+          <div>
+            <span className="block text-[10px] text-surface-400 uppercase font-semibold">Farmers</span>
+            <span className="text-xs font-bold text-surface-900">{farm.number_of_farmers || '1'}</span>
+          </div>
+          <div>
+            <span className="block text-[10px] text-surface-400 uppercase font-semibold">Area</span>
+            <span className="text-xs font-bold text-surface-900">{farm.area ? `${farm.area} ha` : '—'}</span>
+          </div>
+          <div>
+            <span className="block text-[10px] text-surface-400 uppercase font-semibold">Credits</span>
+            <span className="text-xs font-bold text-brand-800">{creditsAvailable.toLocaleString()}</span>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-4">
+          <div className="flex justify-between text-[11px] font-semibold text-surface-500 mb-1">
+            <span>Availability Status</span>
+            <span>{soldPct}% Retired</span>
+          </div>
+          <div className="h-1.5 w-full bg-surface-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-brand-600 to-emerald-500 rounded-full transition-all duration-500"
+              style={{ width: `${soldPct}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Practice Tags */}
+        <div className="flex flex-wrap gap-1 mb-5">
+          {tags.slice(0, 3).map((tag) => (
+            <span key={tag} className="px-2 py-0.5 rounded-md bg-surface-100 text-surface-600 text-[10px] font-semibold">
+              #{tag}
+            </span>
+          ))}
+          {farm.is_verified && (
+            <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+              ✓ Ground-Audited
+            </span>
+          )}
+        </div>
+
+        {/* Card Actions */}
+        <div className="mt-auto pt-3 border-t border-surface-100 flex items-center gap-2">
+          <Link to={`/marketplace/${listing.listing_id}`} className="flex-1">
+            <Button variant="secondary" size="sm" className="w-full">
+              Details
+            </Button>
+          </Link>
+          <Link to={`/marketplace/${listing.listing_id}`} className="flex-1">
+            <Button variant="primary" size="sm" className="w-full shadow-subtle">
+              Purchase
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

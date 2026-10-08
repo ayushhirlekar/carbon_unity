@@ -1,0 +1,230 @@
+{
+  "nav": {
+    "home": "Home",
+    "field": "Field",
+    "ask": "Ask",
+    "project": "Project",
+    "alerts": "Alerts",
+    "logout": "Logout",
+    "yourCode": "Your code"
+  },
+
+  "common": {
+    "loading": "Loading…",
+    "saving": "Saving…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "select": "Select…",
+    "optional": "optional",
+    "ha": "ha",
+    "acre": "acre",
+    "guntha": "guntha",
+    "none": "None yet",
+    "somethingWrong": "That did not work"
+  },
+
+  "dashboard": {
+    "yourLand": "Your land",
+    "plots_one": "{{count}} plot",
+    "plots_other": "{{count}} plots",
+    "doThisFirst": "Do this first",
+    "yourPlots": "Your plots",
+    "manage": "Manage",
+    "noPlots": "No plots yet.",
+    "noSoilData": "No soil data",
+    "awaitingBaseline": "Awaiting baseline",
+    "carbonPct": "{{value}}% carbon",
+    "yourCodeHint": "Give this to a project host, or to a neighbour who wants to invite you.",
+    "carbonProject": "Carbon project",
+    "notInProject": "Not in a project",
+    "findNearby": "Find one nearby",
+    "inProjects_one": "In {{count}} project",
+    "inProjects_other": "In {{count}} projects",
+    "needSecondReading_one": "{{count}} plot needs a second soil reading before carbon change can be measured.",
+    "needSecondReading_other": "{{count}} plots need a second soil reading before carbon change can be measured.",
+    "step": {
+      "drawTitle": "Draw your first plot",
+      "drawWhy": "Mark the boundary on the map. Your area is measured from the outline, so there is nothing to type.",
+      "drawCta": "Draw plot",
+      "cardTitle": "Add your Soil Health Card",
+      "cardWhy": "Copy the organic carbon and pH from the card you already have. This gives your plot a starting point.",
+      "cardCta": "Enter card",
+      "secondTitle": "One more reading needed",
+      "secondWhy": "Carbon credits are paid on change, so a second card from a later date is what turns your first into a baseline.",
+      "secondCta": "Add second card",
+      "joinTitle": "Join a carbon project",
+      "joinWhy": "Projects group many farmers so verification is paid once for everyone instead of once each.",
+      "joinCta": "Find projects"
+    }
+  },
+
+  "parcels": {
+    "title": "My plots",
+    "drawNew": "Draw new plot",
+    "instruction": "Tap each corner of your field. The shape closes itself once you have three.",
+    "measuredFrom": "Measured from your outline. Does this match your plot?",
+    "checking": "About {{value}} ha — checking…",
+    "undo": "Undo last corner",
+    "startOver": "Start over",
+    "register": "Register plot",
+    "registered": "Plot registered — {{value}} ha",
+    "noPlots": "You have not registered any plots yet.",
+    "addSoilCard": "Add soil card",
+    "soilCards": "Soil cards ({{count}})",
+    "overlapReview": "Overlap under review",
+    "overlapRejected": "This overlaps {{name}} by {{pct}}%. That land is already registered — check your outline.",
+    "overlapFlagged": "Slight overlap with a neighbouring plot. You can continue — it will be reviewed, not rejected.",
+    "invalidShape": "The outline crosses itself. Clear it and draw again without crossing lines.",
+    "hint": {
+      "tapFirst": "Tap the first corner of your field",
+      "one": "1 corner — tap the next one",
+      "two": "2 corners — one more makes a shape",
+      "more": "{{count}} corners · keep tapping or register"
+    },
+    "field": {
+      "name": "Plot name",
+      "village": "Village",
+      "taluka": "Taluka",
+      "gat": "Gat number",
+      "gatHint": "From your 7/12 extract",
+      "hissa": "Hissa number",
+      "tenure": "How you hold this land",
+      "tenureHint": "Only owners can earn carbon credits",
+      "soilType": "Soil type",
+      "soilHint": "Used to estimate soil weight",
+      "water": "Water source",
+      "crop": "Current crop"
+    }
+  },
+
+  "soilCard": {
+    "title": "Soil Health Card",
+    "subtitle": "Copy the values printed on your card. Do not fill these in from memory.",
+    "whichPlot": "Which plot",
+    "noSoilType": "This plot has no soil type set. Soil weight is estimated from it, so carbon cannot be worked out until you add it on the plot.",
+    "readings": "Readings on this plot",
+    "fromCard": "from card",
+    "onlyOne": "One reading is a starting point. A second card from a later date is what turns it into a measured gain you can be paid for.",
+    "gain": "Carbon up {{delta}}% since {{date}} — {{co2}} tCO₂e at the latest reading.",
+    "noGain": "No increase measured yet between {{from}} and {{to}}.",
+    "addCard": "Add a card",
+    "sampleDate": "Sample date",
+    "sampleDateHint": "printed on the card",
+    "reference": "Card reference",
+    "organicCarbon": "Organic carbon",
+    "ph": "pH",
+    "ec": "Electrical conductivity",
+    "showNutrients": "Add nutrients from the card (optional)",
+    "hideNutrients": "Hide nutrients",
+    "assumptionNote": "Soil weight and sampling depth are estimated from your soil type, not measured. They are recorded as estimates so nothing later treats them as readings.",
+    "saveCard": "Save card",
+    "saved": "Soil Health Card saved",
+    "drawFirst": "Draw a plot first, then add its card here."
+  },
+
+  "assistant": {
+    "title": "Ask",
+    "intro": "Ask about this plot. Answers come from your own readings, not general advice.",
+    "placeholder": "Ask about your field",
+    "send": "Ask",
+    "thinking": "Looking at your field…",
+    "refresh": "Update field readings now",
+    "refreshed": "Field readings updated",
+    "drawFirst": "Draw a plot first. The assistant answers about your own field, not in general.",
+    "guard": {
+      "checked": "Checked against your data.",
+      "reworded": "Reworded once to remove an unsupported figure.",
+      "rejected": "Plain wording — the written answer used a figure not in your data, so it was rejected.",
+      "noModel": "Plain wording — no language model configured."
+    },
+    "panel": {
+      "notEnough": "Not enough to advise",
+      "limiting": "Limiting factor",
+      "suitability": "suitability {{value}}",
+      "whatToDo": "What to do, in order",
+      "heldBack": "Held back {{when}}",
+      "noStudy": "No matching study for your conditions yet",
+      "confidence": "Confidence",
+      "limitedBy": "Limited mainly by {{what}}.",
+      "studiesMatch": "Studies that match",
+      "noEffectSize": "no effect size",
+      "setAside": "Set aside, and why",
+      "staleReadings": "Field readings are {{days}} days old. Tap “Update field readings” for current conditions."
+    },
+    "suggest": {
+      "how": "How is my field doing?",
+      "first": "What should I do first?",
+      "water": "When should I water?",
+      "credits": "Can I claim carbon credits yet?"
+    }
+  },
+
+  "project": {
+    "title": "Carbon project",
+    "invitations": "Invitations",
+    "youWereInvited": "You were invited",
+    "youAsked": "You asked to join",
+    "accept": "Accept",
+    "decline": "Decline",
+    "waitingHost": "Waiting for host",
+    "youAreIn": "You are in",
+    "farmers_one": "{{count}} farmer",
+    "farmers_other": "{{count}} farmers",
+    "totalArea": "{{value}} ha total",
+    "shareNote": "Your share is worked out from the carbon your own plot gained, not split equally.",
+    "canJoin": "Projects you can join",
+    "noneOpen": "No open projects right now.",
+    "joined": "Joined",
+    "joinWith": "Join with…",
+    "drawFirst": "Draw a plot first",
+    "allEnrolled": "All plots already enrolled",
+    "requestSent": "Request sent to the host",
+    "fromTo": "{{from}}% → {{to}}% carbon",
+    "status": {
+      "awaiting_baseline": "Needs a second soil reading",
+      "no_samples": "No soil data yet",
+      "no_gain_yet": "No measured gain yet"
+    }
+  },
+
+  "alerts": {
+    "title": "Alerts",
+    "checkNow": "Check now",
+    "checking": "Checking…",
+    "nothing": "Nothing needs your attention. You will be told if that changes.",
+    "newAlerts_one": "{{count}} new alert",
+    "newAlerts_other": "{{count}} new alerts",
+    "nothingNew": "Nothing new",
+    "dismiss": "Dismiss",
+    "severity": {
+      "urgent": "Act now",
+      "advice": "Worth doing",
+      "info": "For information"
+    }
+  },
+
+  "soil": {
+    "black": "Black / kali (काळी)",
+    "red": "Red / lal (लाल)",
+    "sandy": "Sandy / reti (रेती)",
+    "gravelly": "Gravelly / murmad (मुरमाड)",
+    "loam": "Loam",
+    "clay": "Clay"
+  },
+
+  "water": {
+    "rainfed": "Rainfed (जिरायत)",
+    "well": "Well",
+    "borewell": "Borewell",
+    "canal": "Canal",
+    "drip": "Drip",
+    "sprinkler": "Sprinkler"
+  },
+
+  "tenure": {
+    "owned": "Owned (मालकी)",
+    "leased": "Leased (कूळ)",
+    "sharecropped": "Sharecropped (बटाई)",
+    "other": "Other"
+  }
+}

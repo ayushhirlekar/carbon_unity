@@ -62,7 +62,7 @@ export function AuthProvider({ children }) {
     }
   }, [signMessage]);
 
-  const register = useCallback(async (walletAddress, role, displayName) => {
+  const register = useCallback(async (walletAddress, role, displayName, extra = {}) => {
     setError(null);
     try {
       // Step 1: Get nonce
@@ -72,9 +72,10 @@ export function AuthProvider({ children }) {
       // Step 2: Sign message
       const signature = await signMessage(message);
 
-      // Step 3: Register
+      // Step 3: Register. `extra` carries adminCode, phone and
+      // preferredLanguage — the server ignores what it does not want.
       const regRes = await authService.register({
-        walletAddress, signature, message, role, displayName
+        walletAddress, signature, message, role, displayName, ...extra
       });
       const { user: userData, token: jwt } = regRes.data;
 

@@ -4,9 +4,6 @@ import ContractABI from '../../../smart-contracts/CarbonCreditMarketplace.abi.js
 
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || '';
-// ADD THIS DEBUG LINE
-console.log('🔍 CONTRACT_ADDRESS loaded:', CONTRACT_ADDRESS);
-console.log('🔍 All Vite env vars:', import.meta.env);
 
 /**
  * Get ethers BrowserProvider (MetaMask)
