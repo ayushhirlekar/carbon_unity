@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import farmerService from '../../services/farmerService';
 import Button from '../../components/common/Button';
 import Skeleton from '../../components/common/Skeleton';
+import DailyReportCard from '../../components/farmer/DailyReportCard';
 
 const CopyIcon = () => (
   <svg className="w-3.5 h-3.5 text-surface-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -117,6 +118,12 @@ export default function FarmerDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-6 items-start">
         {/* Left Column: Action Card & Parcels */}
         <div className="space-y-6">
+
+          {/* This morning's report. Placed above the hero because
+              it is the unprompted one: if the system wrote
+              something overnight, that is the first thing the
+              farmer should see on opening the app. */}
+          {parcels[0]?.farm_id && <DailyReportCard farmId={parcels[0].farm_id} />}
 
           {/* Hero Action Recommendation Card */}
           {nextStep && (

@@ -6,9 +6,9 @@
     "project": "Project",
     "alerts": "Alerts",
     "logout": "Logout",
-    "yourCode": "Your code"
+    "yourCode": "Your code",
+    "device": "Device"
   },
-
   "common": {
     "loading": "Loading…",
     "saving": "Saving…",
@@ -22,7 +22,6 @@
     "none": "None yet",
     "somethingWrong": "That did not work"
   },
-
   "dashboard": {
     "yourLand": "Your land",
     "plots_one": "{{count}} plot",
@@ -57,7 +56,6 @@
       "joinCta": "Find projects"
     }
   },
-
   "parcels": {
     "title": "My plots",
     "drawNew": "Draw new plot",
@@ -96,7 +94,6 @@
       "crop": "Current crop"
     }
   },
-
   "soilCard": {
     "title": "Soil Health Card",
     "subtitle": "Copy the values printed on your card. Do not fill these in from memory.",
@@ -121,7 +118,6 @@
     "saved": "Soil Health Card saved",
     "drawFirst": "Draw a plot first, then add its card here."
   },
-
   "assistant": {
     "title": "Ask",
     "intro": "Ask about this plot. Answers come from your own readings, not general advice.",
@@ -158,7 +154,6 @@
       "credits": "Can I claim carbon credits yet?"
     }
   },
-
   "project": {
     "title": "Carbon project",
     "invitations": "Invitations",
@@ -186,7 +181,6 @@
       "no_gain_yet": "No measured gain yet"
     }
   },
-
   "alerts": {
     "title": "Alerts",
     "checkNow": "Check now",
@@ -202,7 +196,6 @@
       "info": "For information"
     }
   },
-
   "soil": {
     "black": "Black / kali (काळी)",
     "red": "Red / lal (लाल)",
@@ -211,7 +204,6 @@
     "loam": "Loam",
     "clay": "Clay"
   },
-
   "water": {
     "rainfed": "Rainfed (जिरायत)",
     "well": "Well",
@@ -220,7 +212,6 @@
     "drip": "Drip",
     "sprinkler": "Sprinkler"
   },
-
   "tenure": {
     "owned": "Owned (मालकी)",
     "leased": "Leased (कूळ)",

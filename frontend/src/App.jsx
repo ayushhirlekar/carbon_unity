@@ -25,6 +25,7 @@ import FarmerProjectPage from './pages/farmer/FarmerProjectPage';
 import SoilCardPage from './pages/farmer/SoilCardPage';
 import AssistantPage from './pages/farmer/AssistantPage';
 import AlertsPage from './pages/farmer/AlertsPage';
+import DevicePage from './pages/farmer/DevicePage';
 import ProjectsHostPage from './pages/admin/ProjectsHostPage';
 
 function AppRoutes() {
@@ -89,6 +90,7 @@ function AppRoutes() {
             <Route path="parcels" element={<MyParcelsPage />} />
             <Route path="soil-card" element={<SoilCardPage />} />
             <Route path="alerts" element={<AlertsPage />} />
+              <Route path="device" element={<DevicePage />} />
             <Route path="assistant" element={<AssistantPage />} />
             <Route path="project" element={<FarmerProjectPage />} />
             <Route

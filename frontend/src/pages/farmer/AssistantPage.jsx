@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import farmerService from '../../services/farmerService';
 import agentService from '../../services/agentService';
+import AgentTrace from '../../components/farmer/AgentTrace';
 import { useToast } from '../../components/common/Toast';
 import Button from '../../components/common/Button';
 import Skeleton from '../../components/common/Skeleton';
@@ -52,6 +53,52 @@ export default function AssistantPage() {
     agentService.assess(farmId).then(setAssessment).catch(() => setAssessment(null));
   }, [farmId]);
 
+  /**
+   * Restore the conversation for this plot.
+   *
+   * Without this the thread lived only in React state, so changing
+   * window or reloading discarded it — the answers were being
+   * written to agent_messages the whole time and simply never read
+   * back. A farmer who asked something yesterday should find it.
+   *
+   * The stored conversationId is preferred so a reload rejoins the
+   * same thread instead of quietly starting a second one against
+   * the same plot.
+   */
+  useEffect(() => {
+    if (!farmId) return;
+    let alive = true;
+
+    agentService.history(farmId)
+      .then((convs) => {
+        if (!alive || !convs?.length) return;
+
+        const storedId = (() => {
+          try { return localStorage.getItem(`cu.conv.${farmId}`); } catch { return null; }
+        })();
+
+        const conv = convs.find((c) => c.conversation_id === storedId) || convs[0];
+        const msgs = [...(conv.agent_messages || [])]
+          .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+          .map((m) => ({
+            role: m.role,
+            content: m.content,
+            guardStatus: m.guard_status,
+            agentsUsed: m.agents_used,
+            assessment: m.assessment,
+            restored: true,
+          }));
+
+        if (msgs.length) {
+          setMessages(msgs);
+          setConversationId(conv.conversation_id);
+        }
+      })
+      .catch(() => { /* an empty assistant is fine; a crashed one is not */ });
+
+    return () => { alive = false; };
+  }, [farmId]);
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, busy]);
@@ -72,6 +119,10 @@ export default function AssistantPage() {
       });
 
       setConversationId(res.conversationId);
+      try {
+        if (res.conversationId) localStorage.setItem(`cu.conv.${farmId}`, res.conversationId);
+      } catch { /* private mode: the thread still works for this session */ }
+
       setMessages((prev) => [
         ...prev,
         {
@@ -80,6 +131,10 @@ export default function AssistantPage() {
           guardStatus: res.guardStatus,
           modelAvailable: res.modelAvailable,
           agentsUsed: res.agentsUsed,
+          assessment: res.assessment,
+          facts: res.facts,
+          historyUsed: res.historyUsed,
+          modelNotice: res.modelNotice,
         },
       ]);
     } catch (err) {
@@ -184,6 +239,10 @@ export default function AssistantPage() {
             value={farmId}
             onChange={(e) => {
               setFarmId(e.target.value);
+              // Cleared rather than kept: the restore effect above
+              // loads the newly selected plot's own thread, and
+              // leaving the previous plot's messages on screen
+              // would attribute them to the wrong field.
               setMessages([]);
               setAssessment(null);
               setConversationId(null);
@@ -251,14 +310,27 @@ export default function AssistantPage() {
                     </div>
 
                     {m.role === 'assistant' && m.guardStatus && (
-                      <span className="text-[10px] text-surface-400 mt-1 px-1">
-                        {m.guardStatus === 'template_fallback'
-                          ? 'Deterministic rule-based reply'
-                          : 'Audited against parcel telemetry'}
-                        {m.agentsUsed?.length
-                          ? ` · Agents: ${m.agentsUsed.filter((a) => a !== 'narrator').join(', ')}`
-                          : ''}
-                      </span>
+                      <div className="mt-1 px-1">
+                        <span className="text-[10px] text-surface-400">
+                          {m.guardStatus === 'template_fallback'
+                            ? 'Deterministic rule-based reply'
+                            : 'Audited against parcel telemetry'}
+                          {m.restored ? ' · from an earlier session' : ''}
+                        </span>
+                        {m.modelNotice === 'quota_exhausted' && (
+                          <p className="mt-0.5 text-[10px] text-amber-700">
+                            Plain wording today — the AI rewording limit has been reached.
+                            The figures are unaffected.
+                          </p>
+                        )}
+                        <AgentTrace
+                          agentsUsed={m.agentsUsed}
+                          facts={m.facts}
+                          guardStatus={m.guardStatus}
+                          historyUsed={m.historyUsed}
+                          modelNotice={m.modelNotice}
+                        />
+                      </div>
                     )}
                   </div>
                 ))}

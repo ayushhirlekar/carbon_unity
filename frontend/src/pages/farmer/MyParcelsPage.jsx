@@ -5,6 +5,7 @@ import { useToast } from '../../components/common/Toast';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
 import Skeleton from '../../components/common/Skeleton';
+import DevicesPanel from '../../components/farmer/DevicesPanel';
 
 const SOIL_TYPES = [
   { v: 'black', l: 'Black / kali (काळी)' },
@@ -469,6 +470,19 @@ export default function MyParcelsPage() {
                     </svg>
                     {p.sampleCount === 0 ? 'Add Soil Health Card' : `View Soil Cards (${p.sampleCount})`}
                   </a>
+
+                  {/* Sensors belong on the parcel, not on a settings
+                      page: a device measures one piece of land, and
+                      attaching it anywhere else would invite
+                      connecting it to the wrong one. */}
+                  <details className="mt-3 rounded-xl border border-surface-200">
+                    <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-surface-700">
+                      Sensors
+                    </summary>
+                    <div className="border-t border-surface-100 p-3">
+                      <DevicesPanel farmId={p.farmId} />
+                    </div>
+                  </details>
                 </div>
               </Card>
             ))}

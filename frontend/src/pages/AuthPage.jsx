@@ -19,7 +19,7 @@ const WalletIcon = () => (
 
 export default function AuthPage() {
   const navigate = useNavigate();
-  const { login, register, isAuthenticated, isAdmin } = useAuth();
+  const { login, register, isAuthenticated, user } = useAuth();
   const { account, connectWallet, hasMetaMask } = useWeb3();
   const toast = useToast();
 
@@ -32,7 +32,7 @@ export default function AuthPage() {
   const homeFor = (r) => (r === 'admin' ? '/admin' : r === 'farmer' ? '/farmer' : '/buyer');
 
   if (isAuthenticated) {
-    navigate(isAdmin ? '/admin' : '/buyer', { replace: true });
+    navigate(homeFor(user?.role), { replace: true });
     return null;
   }
 

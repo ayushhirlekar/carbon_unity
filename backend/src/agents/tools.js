@@ -1,6 +1,7 @@
 const { supabaseAdmin } = require('../config/supabase');
 const { assess } = require('../reasoning/assess');
 const weatherFeed = require('../services/sensing/weatherFeed');
+const devices = require('../services/deviceService');
 const { inLocalUnits } = require('../services/geometryService');
 
 /**
@@ -141,4 +142,72 @@ const parcelTool = async (farmId) => {
   return { ...farm, area: ha ? inLocalUnits(ha) : null };
 };
 
-module.exports = { sensingTool, weatherTool, agronomyTool, creditingTool, parcelTool };
+/**
+ * Device-aware sensing.
+ *
+ * Three tools, each returning numbers that are already finished.
+ * The agent layer never computes a trend, a slope or a gap: that
+ * arithmetic happens here, in one place, so an alert and an answer
+ * about the same field cannot quietly disagree — and so the model
+ * is only ever asked to explain a figure, never to derive one.
+ *
+ * Every value carries its provenance. `simulated: true` travels
+ * all the way to the evidence panel, because a farmer reading
+ * advice about their field is entitled to know it came from a test
+ * device rather than from their soil.
+ */
+
+const TRACKED = ['moisture_percent', 'soil_temp_c', 'air_humidity_percent'];
+
+/** Latest value per variable, with provenance. */
+const latestReadingsTool = async (farmId) => devices.getLatestReadings(farmId);
+
+/** One variable's recent trend, arithmetic done. */
+const trendTool = async (farmId, variable = 'moisture_percent', hours = 48) =>
+  devices.getTrend(farmId, variable, hours);
+
+/** Devices on this parcel and whether they can be believed. */
+const deviceHealthTool = async (farmId) => devices.getDeviceHealth(farmId);
+
+/**
+ * What the sensing agent actually hands to the narrator.
+ *
+ * Combines the three so the common case is one call, and includes
+ * trends for the variables a device reports rather than every
+ * variable in the table — a trend over a single Soil Health Card
+ * reading is not a trend.
+ */
+const deviceSensingTool = async (farmId) => {
+  const [latest, health, ...trends] = await Promise.all([
+    devices.getLatestReadings(farmId),
+    devices.getDeviceHealth(farmId),
+    ...TRACKED.map((v) => devices.getTrend(farmId, v, 24 * 7)),
+  ]);
+
+  const trend = {};
+  TRACKED.forEach((v, i) => {
+    if (trends[i]?.available) trend[v] = trends[i];
+  });
+
+  return {
+    ...latest,
+    trend,
+    devices: health,
+    // Stated rather than inferred, so nothing downstream has to
+    // decide for itself whether these readings are real.
+    dataIsSimulated: latest.anySimulated,
+  };
+};
+
+module.exports = {
+  sensingTool,
+  weatherTool,
+  agronomyTool,
+  creditingTool,
+  parcelTool,
+  latestReadingsTool,
+  trendTool,
+  deviceHealthTool,
+  deviceSensingTool,
+  TRACKED,
+};

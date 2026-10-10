@@ -29,13 +29,37 @@ const chat = async (req, res) => {
       convId = conv?.conversation_id;
     }
 
+    /**
+     * Prior turns, loaded BEFORE this question is stored.
+     *
+     * Order matters: writing the new question first and then
+     * reading the conversation would hand the model its own
+     * question back as context.
+     *
+     * This is the memory. `agent_messages` is already the record
+     * of what was said, so continuity is a read from it rather
+     * than a second mechanism — and because the guard still builds
+     * its allowed set from the current facts alone, nothing quoted
+     * from an earlier turn can reappear as a current figure.
+     */
+    let history = [];
+    if (convId) {
+      const { data: prior } = await supabaseAdmin
+        .from('agent_messages')
+        .select('role, content')
+        .eq('conversation_id', convId)
+        .order('created_at', { ascending: true })
+        .limit(20);
+      history = prior || [];
+    }
+
     if (convId) {
       await supabaseAdmin.from('agent_messages').insert([
         { conversation_id: convId, role: 'user', content: question || '' },
       ]);
     }
 
-    const result = await ask({ farmId, question, language: language || 'en' });
+    const result = await ask({ farmId, question, language: language || 'en', history });
 
     if (convId) {
       await supabaseAdmin.from('agent_messages').insert([{
@@ -63,6 +87,17 @@ const chat = async (req, res) => {
         assessment: result.facts?.assessment || null,
         facts: result.facts,
         modelAvailable: hasKey(),
+        // How many earlier turns this answer could see. Surfaced so
+        // "it remembers" is checkable rather than claimed.
+        historyUsed: history.length,
+        // A dead or overloaded model pin, when there was one. The
+        // previous pin degraded every answer to a template for days
+        // without saying so; this is how that stops being silent.
+        modelNotice: result.modelNotice || null,
+        // True when the day's allowance is spent. Distinct from a
+        // guard rejection: the figures are unaffected either way,
+        // but only one of them is worth telling the farmer about.
+        quotaExhausted: result.modelNotice === 'quota_exhausted',
       },
     });
   } catch (error) {

@@ -6,7 +6,14 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:guard": "node tests/guard.test.js",
+    "test:pipeline": "node tests/pipeline.test.js",
+    "simulate": "node scripts/simulate.js",
+    "health-sweep": "node -e \"require('./src/services/sensing/scheduler').runHealthSweep().then(r=>console.log(JSON.stringify(r,null,1)))\"",
+    "reports-now": "node -e \"require('./src/services/sensing/scheduler').runReports().then(r=>console.log(JSON.stringify(r,null,1)))\"",
+    "new-device": "node scripts/new-device.js",
+    "test:soc": "node tests/socModel.test.js"
   },
   "keywords": [
     "carbon-credits",
@@ -29,6 +36,7 @@
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "node-cron": "^4.6.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {

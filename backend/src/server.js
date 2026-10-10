@@ -13,6 +13,10 @@ const advisoryRoutes = require('./routes/advisoryRoutes');
 const sensingRoutes = require('./routes/sensingRoutes');
 const agentRoutes = require('./routes/agentRoutes');
 const alertRoutes = require('./routes/alertRoutes');
+const ingestRoutes = require('./routes/ingestRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const demoRoutes = require('./routes/demoRoutes');
+const mlRoutes = require('./routes/mlRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -66,6 +70,14 @@ app.use('/api/advisory', advisoryRoutes);
 app.use('/api/sensing', sensingRoutes);
 app.use('/api/agent', agentRoutes);
 app.use('/api/alerts', alertRoutes);
+
+// Device ingest and the devices that feed it. Mounted at /api so
+// the device endpoint is /api/ingest — short, because it is the
+// one URL that will be typed into firmware by hand.
+app.use('/api', ingestRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/demo', demoRoutes);
+app.use('/api/ml', mlRoutes);
 
 // ============================================
 // ERROR HANDLING

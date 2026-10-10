@@ -27,6 +27,8 @@ const TABS = [
     d: 'M17 20v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 20v-2a4 4 0 0 0-3-3.9M16 2.1a4 4 0 0 1 0 7.8' },
   { to: '/farmer/alerts', labelKey: 'nav.alerts',
     d: 'M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0' },
+  { to: '/farmer/device', labelKey: 'nav.device',
+    icon: 'M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM5 9h14M7 13h10M12 3v4' },
 ];
 
 export default function FarmerLayout() {
